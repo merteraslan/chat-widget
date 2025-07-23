@@ -164,6 +164,7 @@ jobs:
           body_path: release-notes.md
           draft: false
           prerelease: ${{ github.event.inputs.version_type == 'prerelease' }}
+          make_latest: ${{ github.event.inputs.version_type != 'prerelease' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             
@@ -179,6 +180,93 @@ jobs:
           echo "1. ✅ Version bumped in package.json" >> $GITHUB_STEP_SUMMARY
           echo "2. ✅ CHANGELOG.md updated" >> $GITHUB_STEP_SUMMARY
           echo "3. ✅ GitHub release created" >> $GITHUB_STEP_SUMMARY
-          echo "4. ⏳ NPM publishing will start automatically" >> $GITHUB_STEP_SUMMARY
+          echo "4. ⏳ NPM publishing starting..." >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Release URL:** https://github.com/${{ github.repository }}/releases/tag/v$NEW_VERSION" >> $GITHUB_STEP_SUMMARY
+
+  publish-to-npm:
+    name: Publish to NPM
+    needs: create-release
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      id-token: write  # Required for npm provenance
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: main  # Make sure we get the updated version
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Verify NPM token is available
+        run: |
+          if [ -z "${{ secrets.NPM_TOKEN }}" ]; then
+            echo "❌ NPM_TOKEN secret is not set up"
+            echo "Please add NPM_TOKEN to repository secrets"
+            exit 1
+          else
+            echo "✅ NPM_TOKEN is configured"
+          fi
+        
+      - name: Check if version already exists on npm
+        run: |
+          PACKAGE_VERSION=$(node -e "const fs = require('fs'); const pkg = JSON.parse(fs.readFileSync('./package.json', 'utf8')); console.log(pkg.version);")
+          PACKAGE_NAME=$(node -e "const fs = require('fs'); const pkg = JSON.parse(fs.readFileSync('./package.json', 'utf8')); console.log(pkg.name);")
+          
+          echo "📦 Package: $PACKAGE_NAME@$PACKAGE_VERSION"
+          
+          if npm view "$PACKAGE_NAME@$PACKAGE_VERSION" version 2>/dev/null; then
+            echo "❌ Version $PACKAGE_VERSION already exists on npm"
+            echo "Skipping publication as version already exists"
+            exit 0
+          else
+            echo "✅ Version $PACKAGE_VERSION is available for publishing"
+          fi
+          
+      - name: Run linting
+        run: npm run lint
+        
+      - name: Run tests
+        run: npm run test:run
+        
+      - name: Build project
+        run: npm run build
+        
+      - name: Verify package contents (dry run)
+        run: |
+          echo "📦 Package contents preview:"
+          npm pack --dry-run
+          
+      - name: Publish to NPM with provenance
+        run: |
+          echo "🚀 Publishing package to NPM..."
+          npm publish --provenance --access public
+          echo "✅ Package published successfully!"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          
+      - name: Verify publication
+        run: |
+          PACKAGE_VERSION=$(node -e "const fs = require('fs'); const pkg = JSON.parse(fs.readFileSync('./package.json', 'utf8')); console.log(pkg.version);")
+          PACKAGE_NAME=$(node -e "const fs = require('fs'); const pkg = JSON.parse(fs.readFileSync('./package.json', 'utf8')); console.log(pkg.name);")
+          
+          echo "⏳ Waiting for package to be available on npm..."
+          sleep 10
+          
+          if npm view "$PACKAGE_NAME@$PACKAGE_VERSION" version; then
+            echo "✅ Package successfully published and available on npm"
+          else
+            echo "❌ Package publication verification failed"
+            exit 1
+          fi

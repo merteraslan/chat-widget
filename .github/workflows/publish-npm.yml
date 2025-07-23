@@ -2,11 +2,17 @@ name: Publish to NPM
 
 on:
   release:
-    types: [published, released]
+    types: [published, released, created]
   workflow_dispatch:
     inputs:
       version:
         description: 'Version to publish (leave empty to use package.json version)'
+        required: false
+        type: string
+  workflow_call:
+    inputs:
+      version:
+        description: 'Version to publish'
         required: false
         type: string
 
