@@ -1,6 +1,38 @@
 import React from 'react';
 import { ChatWidget } from '@merteraslan/chat-widget';
 
+// Secure session ID generation utility
+// This function addresses CodeQL security warning js/insecure-randomness
+// by using cryptographically secure random number generation instead of Math.random()
+const generateSecureSessionId = (): string => {
+  // Primary method: Use crypto.randomUUID (recommended, provides 122 bits of entropy)
+  // Available in modern browsers (Chrome 92+, Firefox 95+, Safari 15.4+)
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return `session_${crypto.randomUUID()}`;
+  }
+  
+  // Fallback method: Use crypto.getRandomValues for older browsers
+  // Generates 128 bits of entropy (exceeds OWASP minimum requirement of 64 bits)
+  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+    // Generate 128 bits of entropy (16 bytes) for strong security
+    const array = new Uint8Array(16);
+    crypto.getRandomValues(array);
+    
+    // Convert to base64url encoding for URL-safe session ID
+    const base64 = btoa(String.fromCharCode(...array))
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=/g, '');
+    
+    return `session_${Date.now()}_${base64}`;
+  }
+  
+  // Last resort fallback for very old environments (still better than Math.random)
+  // This should not happen in modern web environments that support Web Crypto API
+  console.warn('Crypto API not available, using timestamp-based fallback');
+  return `session_${Date.now()}_${performance.now()}`;
+};
+
 // Basic usage example
 export const BasicExample: React.FC = () => {
   return (
@@ -22,8 +54,8 @@ export const BasicExample: React.FC = () => {
 // Advanced usage with session management
 export const AdvancedExample: React.FC = () => {
   const [sessionId, setSessionId] = React.useState<string>(() => {
-    // Generate or retrieve session ID
-    return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    // Generate cryptographically secure session ID
+    return generateSecureSessionId();
   });
 
   const handleCustomWebhook = async (data: { prompt: string; session_id: string }) => {
