@@ -2,7 +2,13 @@ name: Publish to NPM
 
 on:
   release:
-    types: [published]
+    types: [published, released]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (leave empty to use package.json version)'
+        required: false
+        type: string
 
 jobs:
   validate-and-publish:
@@ -14,6 +20,18 @@ jobs:
       id-token: write  # Required for npm provenance
       
     steps:
+      - name: Debug release info
+        run: |
+          echo "🔍 Release Information:"
+          echo "Release tag: ${{ github.event.release.tag_name }}"
+          echo "Release name: ${{ github.event.release.name }}"
+          echo "Release action: ${{ github.event.action }}"
+          echo "Release published: ${{ github.event.release.published }}"
+          echo "Release draft: ${{ github.event.release.draft }}"
+          echo "Release prerelease: ${{ github.event.release.prerelease }}"
+          echo "Repository: ${{ github.repository }}"
+          echo "Event name: ${{ github.event_name }}"
+          
       - name: Checkout code
         uses: actions/checkout@v4
         
@@ -43,19 +61,32 @@ jobs:
       - name: Verify package.json version matches release tag
         run: |
           PACKAGE_VERSION=$(node -e "const fs = require('fs'); const pkg = JSON.parse(fs.readFileSync('./package.json', 'utf8')); console.log(pkg.version);")
-          RELEASE_TAG="${{ github.event.release.tag_name }}"
-          # Remove 'v' prefix if present
-          RELEASE_VERSION=${RELEASE_TAG#v}
           
-          echo "📦 Package version: $PACKAGE_VERSION"
-          echo "🏷️  Release version: $RELEASE_VERSION"
-          
-          if [ "$PACKAGE_VERSION" != "$RELEASE_VERSION" ]; then
-            echo "❌ Version mismatch: package.json ($PACKAGE_VERSION) != release tag ($RELEASE_VERSION)"
-            echo "Please update package.json version to match the release tag"
-            exit 1
-          else
-            echo "✅ Version match confirmed"
+          if [ "${{ github.event_name }}" = "release" ]; then
+            RELEASE_TAG="${{ github.event.release.tag_name }}"
+            # Remove 'v' prefix if present
+            RELEASE_VERSION=${RELEASE_TAG#v}
+            
+            echo "📦 Package version: $PACKAGE_VERSION"
+            echo "🏷️  Release version: $RELEASE_VERSION"
+            
+            if [ "$PACKAGE_VERSION" != "$RELEASE_VERSION" ]; then
+              echo "❌ Version mismatch: package.json ($PACKAGE_VERSION) != release tag ($RELEASE_VERSION)"
+              echo "Please update package.json version to match the release tag"
+              exit 1
+            else
+              echo "✅ Version match confirmed"
+            fi
+          elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            if [ -n "${{ github.event.inputs.version }}" ]; then
+              EXPECTED_VERSION="${{ github.event.inputs.version }}"
+              if [ "$PACKAGE_VERSION" != "$EXPECTED_VERSION" ]; then
+                echo "❌ Version mismatch: package.json ($PACKAGE_VERSION) != input version ($EXPECTED_VERSION)"
+                exit 1
+              fi
+            fi
+            echo "📦 Package version: $PACKAGE_VERSION (manual trigger)"
+            echo "✅ Version validation passed"
           fi
           
       - name: Check if version already exists on npm
@@ -105,7 +136,10 @@ jobs:
           npm pack --dry-run
           
       - name: Publish to NPM with provenance
-        run: npm publish --provenance --access public
+        run: |
+          echo "🚀 Publishing package to NPM..."
+          npm publish --provenance --access public
+          echo "✅ Package published successfully!"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           
