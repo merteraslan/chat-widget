@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basic Usage - Chat Widget</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f0f2f5;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        
+        .header h1 {
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+        
+        .header p {
+            color: #6b7280;
+            font-size: 16px;
+        }
+        
+        .code-example {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'Courier New', monospace;
+            margin: 16px 0;
+            overflow-x: auto;
+        }
+        
+        .installation {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Basic Usage Example</h1>
+            <p>A simple example showing how to integrate the Chat Widget into your application</p>
+        </div>
+        
+        <div class="installation">
+            <h3>📦 Installation</h3>
+            <div class="code-example">
+npm install @merteraslan/chat-widget
+            </div>
+        </div>
+        
+        <h3>💻 React Integration</h3>
+        <div class="code-example">
+import { ChatWidget } from "@merteraslan/chat-widget";
+
+function App() {
+  return (
+    &lt;&gt;
+      &lt;ChatWidget
+        webhookUrl="https://your-api.com/chat"
+        title="AI Assistant"
+        initialMessage="Hello! How can I help you today?"
+        color="#3b82f6"
+        agentName="Support Bot"
+      /&gt;
+    &lt;/&gt;
+  );
+}
+        </div>
+        
+        <h3>🌐 Vanilla HTML Integration</h3>
+        <div class="code-example">
+&lt;!-- Include via CDN --&gt;
+&lt;script type="module"&gt;
+  import { ChatWidget } from 'https://unpkg.com/@merteraslan/chat-widget@latest/dist/chat-widget.es.js';
+  
+  // Mount the widget
+  const widget = new ChatWidget({
+    webhookUrl: 'https://your-api.com/chat',
+    title: 'AI Assistant',
+    initialMessage: 'Hello! How can I help you today?',
+    color: '#3b82f6',
+    agentName: 'Support Bot'
+  });
+  
+  widget.mount(document.body);
+&lt;/script&gt;
+        </div>
+        
+        <h3>⚙️ Configuration Options</h3>
+        <p>The widget supports the following configuration options:</p>
+        <ul>
+            <li><strong>webhookUrl</strong> (required): Your webhook endpoint</li>
+            <li><strong>title</strong> (optional): Widget title</li>
+            <li><strong>initialMessage</strong> (optional): First message displayed</li>
+            <li><strong>sessionId</strong> (optional): Session identifier</li>
+            <li><strong>csrfToken</strong> (optional): CSRF protection token</li>
+            <li><strong>color</strong> (optional): Primary color theme (default: "#242424")</li>
+            <li><strong>agentName</strong> (optional): Display name for AI agent</li>
+        </ul>
+        
+        <h3>📡 API Response Format</h3>
+        <p>Your webhook should respond with JSON in this format:</p>
+        <div class="code-example">
+// Simple text response
+{
+  "output": "Thank you for your message! How can I assist you today?"
+}
+
+// Interactive message response
+{
+  "content": "articles",
+  "content_type": "article",
+  "articles": [
+    {
+      "title": "Getting Started Guide",
+      "description": "Learn how to use our platform",
+      "url": "https://example.com/guide"
+    }
+  ]
+}
+        </div>
+    </div>
+    
+    <!-- Include the chat widget -->
+    <script type="module">
+        // This is a demo - replace with your actual implementation
+        console.log('Basic usage example loaded');
+        console.log('Replace this with actual widget integration');
+    </script>
+</body>
+</html>

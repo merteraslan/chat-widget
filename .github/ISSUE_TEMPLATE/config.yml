@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-config.json
+
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Questions & Support
+    url: https://github.com/merteraslan/chat-widget/discussions
+    about: Ask questions and get help from the community
+  - name: 📚 Documentation
+    url: https://github.com/merteraslan/chat-widget/tree/main/docs
+    about: Check our comprehensive documentation
+  - name: 🔒 Security Issues
+    url: https://github.com/merteraslan/chat-widget/security/policy
+    about: Report security vulnerabilities privately

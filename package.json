@@ -1,0 +1,110 @@
+{
+  "name": "@merteraslan/chat-widget",
+  "version": "0.6.0",
+  "description": "A modern Chat widget using webhooks.",
+  "type": "module",
+  "main": "dist/chat-widget.umd.js",
+  "module": "dist/chat-widget.es.js",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/chat-widget.es.js",
+      "require": "./dist/chat-widget.umd.js"
+    },
+    "./dist/style.css": "./dist/style.css"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/merteraslan/chat-widget.git"
+  },
+  "bugs": {
+    "url": "https://github.com/merteraslan/chat-widget/issues"
+  },
+  "homepage": "https://github.com/merteraslan/chat-widget#readme",
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/merteraslan"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "keywords": [
+    "ai",
+    "chat",
+    "widget",
+    "webhook",
+    "n8n",
+    "make.com",
+    "zapier",
+    "chatwoot",
+    "automation",
+    "integration",
+    "customer-support",
+    "conversational",
+    "messaging",
+    "interactive",
+    "chatbot",
+    "react",
+    "typescript"
+  ],
+  "author": "Mert Eraslan <mertegithub@gmail.com>",
+  "license": "MIT",
+  "sideEffects": false,
+  "scripts": {
+    "dev": "vite",
+    "prebuild": "rimraf dist",
+    "build": "tsc -b ./tsconfig.lib.json && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "prepublish": "npm run build",
+    "publish:npm": "npm publish --access public",
+    "pack:check": "npm pack --dry-run",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest --watch",
+    "test:ui": "vitest --ui"
+  },
+  "peerDependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.30.1",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/node": "^24.0.13",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^4.6.0",
+    "eslint": "^9.30.1",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "globals": "^16.3.0",
+    "jsdom": "^26.1.0",
+    "rimraf": "^6.0.1",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.35.1",
+    "vite": "^7.0.4",
+    "vite-plugin-dts": "^4.5.4",
+    "vite-plugin-lib-inject-css": "^2.2.2",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "@radix-ui/react-label": "^2.1.7",
+    "@radix-ui/react-separator": "^1.1.7",
+    "@radix-ui/react-slot": "^1.2.3",
+    "@radix-ui/react-tabs": "^1.1.12",
+    "autoprefixer": "^10.4.21",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.525.0",
+    "postcss": "^8.5.6"
+  }
+}

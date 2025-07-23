@@ -1,0 +1,180 @@
+name: 🐛 Bug Report (Form)
+description: File a bug report using our guided form
+title: "[Bug]: "
+labels: ["bug", "triage"]
+assignees:
+  - merteraslan
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report! 🐛
+        
+        Before you continue, please:
+        - Search existing issues to avoid duplicates
+        - Check our [FAQ](https://github.com/merteraslan/chat-widget/blob/main/docs/faq.md)
+        - Make sure you're using the latest version
+        
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+      placeholder: Describe the bug...
+    validations:
+      required: true
+      
+  - type: textarea
+    id: reproduction-steps
+    attributes:
+      label: Steps to Reproduce
+      description: Tell us how to reproduce this behavior
+      placeholder: |
+        1. Go to '...'
+        2. Click on '...'
+        3. Scroll down to '...'
+        4. See error
+    validations:
+      required: true
+      
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: What should have happened?
+      placeholder: Describe what you expected to happen...
+    validations:
+      required: true
+      
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: Actual Behavior
+      description: What actually happened?
+      placeholder: Describe what actually happened...
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: browsers
+    attributes:
+      label: Browser
+      description: Which browser(s) are you seeing the problem on?
+      multiple: true
+      options:
+        - Chrome
+        - Firefox
+        - Safari
+        - Edge
+        - Opera
+        - Other
+    validations:
+      required: true
+      
+  - type: input
+    id: browser-version
+    attributes:
+      label: Browser Version
+      description: What version of the browser are you using?
+      placeholder: e.g. 108.0.0.0
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: operating-system
+    attributes:
+      label: Operating System
+      description: What operating system are you using?
+      options:
+        - Windows 11
+        - Windows 10
+        - macOS Ventura (13.x)
+        - macOS Monterey (12.x)
+        - macOS Big Sur (11.x)
+        - Ubuntu 22.04
+        - Ubuntu 20.04
+        - Other Linux
+        - iOS
+        - Android
+        - Other
+    validations:
+      required: true
+      
+  - type: input
+    id: widget-version
+    attributes:
+      label: Chat Widget Version
+      description: What version of the chat widget are you using?
+      placeholder: e.g. 0.6.0
+    validations:
+      required: true
+      
+  - type: input
+    id: react-version
+    attributes:
+      label: React Version
+      description: What version of React are you using?
+      placeholder: e.g. 19.1.0
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: framework
+    attributes:
+      label: Framework
+      description: What framework are you using (if any)?
+      options:
+        - Next.js
+        - Vite
+        - Create React App
+        - Remix
+        - Gatsby
+        - Parcel
+        - Webpack
+        - Rollup
+        - Other
+        - None (vanilla React)
+    validations:
+      required: false
+      
+  - type: textarea
+    id: minimal-reproduction
+    attributes:
+      label: Minimal Reproduction
+      description: Please provide a minimal reproduction of the issue
+      placeholder: |
+        Link to CodeSandbox, StackBlitz, or minimal code snippet:
+        
+        ```tsx
+        // Your code here
+        ```
+    validations:
+      required: false
+      
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add any other context about the problem here
+      placeholder: |
+        - Error messages in console
+        - Network requests that failed
+        - Related issues or discussions
+        - Screenshots or videos
+    validations:
+      required: false
+      
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Checklist
+      description: Please confirm the following
+      options:
+        - label: I have searched for existing issues
+          required: true
+        - label: I have checked the documentation
+          required: true
+        - label: I can reproduce this issue consistently
+          required: true
+        - label: I have provided all the required information
+          required: true
