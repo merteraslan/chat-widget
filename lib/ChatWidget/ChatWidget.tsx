@@ -58,7 +58,6 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({
     openByDefault = false,
     className = '',
     agentName,
-    color,
 }) => {
     const [isOpen, setOpen] = useState(openByDefault);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -191,10 +190,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({
     };
 
     return (
-        <div 
-            className={`mw-chat ${className} ${isOpen ? 'mw-open' : ''}`}
-            style={color ? { '--widget-primary-color': color } as React.CSSProperties : undefined}
-        >
+        <div className={`mw-chat ${className} ${isOpen ? 'mw-open' : ''}`}>
             {/* Toggle Button */}
             <button
                 type="button"
