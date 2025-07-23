@@ -68,13 +68,43 @@ jobs:
             NEW_VERSION="${{ github.event.inputs.custom_version }}"
             echo "Using custom version: $NEW_VERSION"
           else
-            if [ "${{ github.event.inputs.version_type }}" = "prerelease" ]; then
-              NEW_VERSION=$(npm version prerelease --preid="${{ github.event.inputs.prerelease_tag }}" --no-git-tag-version)
-            else
-              NEW_VERSION=$(npm version ${{ github.event.inputs.version_type }} --no-git-tag-version)
-            fi
-            # Remove 'v' prefix that npm version adds
-            NEW_VERSION=${NEW_VERSION#v}
+            # Calculate new version using Node.js and semver logic
+            NEW_VERSION=$(node -e "
+              const fs = require('fs');
+              const pkg = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
+              const current = pkg.version.split('.').map(Number);
+              const [major, minor, patch] = current;
+              
+              let newVersion;
+              const versionType = '${{ github.event.inputs.version_type }}';
+              const prereleaseTag = '${{ github.event.inputs.prerelease_tag }}';
+              
+              switch(versionType) {
+                case 'patch':
+                  newVersion = \`\${major}.\${minor}.\${patch + 1}\`;
+                  break;
+                case 'minor':
+                  newVersion = \`\${major}.\${minor + 1}.0\`;
+                  break;
+                case 'major':
+                  newVersion = \`\${major + 1}.0.0\`;
+                  break;
+                case 'prerelease':
+                  // Check if current version is already a prerelease
+                  if (pkg.version.includes('-')) {
+                    const [base, prereleasePart] = pkg.version.split('-');
+                    const prereleaseNumber = prereleasePart.match(/\\d+$/)?.[0] || '0';
+                    const nextNumber = parseInt(prereleaseNumber) + 1;
+                    newVersion = \`\${base}-\${prereleaseTag}.\${nextNumber}\`;
+                  } else {
+                    newVersion = \`\${major}.\${minor}.\${patch + 1}-\${prereleaseTag}.0\`;
+                  }
+                  break;
+                default:
+                  throw new Error('Unknown version type: ' + versionType);
+              }
+              console.log(newVersion);
+            ")
           fi
           
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_OUTPUT
@@ -82,7 +112,7 @@ jobs:
           
       - name: Update package.json version
         run: |
-          npm version ${{ steps.version.outputs.NEW_VERSION }} --no-git-tag-version
+          npm version ${{ steps.version.outputs.NEW_VERSION }} --no-git-tag-version --allow-same-version
           
       - name: Update CHANGELOG.md
         run: |
