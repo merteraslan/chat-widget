@@ -4,9 +4,9 @@ This guide will help you install and configure the Chat Widget in your React app
 
 ## Prerequisites
 
-- React 19.1.0 or higher
+- React 18.0.0 or higher (supports React 19+)
 - Node.js 18.0.0 or higher
-- npm or yarn package manager
+- npm, yarn, or pnpm package manager
 
 ## Installation
 
@@ -20,6 +20,12 @@ Or with yarn:
 
 ```bash
 yarn add @merteraslan/chat-widget
+```
+
+Or with pnpm:
+
+```bash
+pnpm add @merteraslan/chat-widget
 ```
 
 ## Basic Setup
@@ -61,11 +67,14 @@ function App() {
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `title` | string | "AI Assistant" | Widget title in header |
+| `title` | React.ReactNode | "Chat" | Widget title in header |
 | `initialMessage` | string | "Hello! How can I help you today?" | First message shown |
-| `sessionId` | string | "sample_session" | Session identifier |
-| `csrfToken` | string | "" | CSRF token for security |
-| `color` | string | "#242424" | Primary color (hex format) |
+| `sessionId` | string | undefined | Session identifier |
+| `csrfToken` | string | undefined | CSRF token for security |
+| `placeholder` | string | "Type a message…" | Input placeholder text |
+| `openByDefault` | boolean | false | Open widget automatically |
+| `className` | string | "" | Additional CSS class |
+| `color` | string | undefined | Primary color (hex format) |
 | `agentName` | string | undefined | Agent display name |
 
 ## Complete Example
@@ -189,7 +198,7 @@ const widgetProps: ChatWidgetProps = {
    - Check you're logged in: `npm whoami --registry=https://npm.pkg.github.com`
 
 2. **Peer dependency warnings**
-   - Ensure React 19.1.0+ is installed
+   - Ensure React 18.0.0+ is installed (supports up to React 19+)
    - Update React if necessary: `npm install react@latest react-dom@latest`
 
 3. **Module resolution errors**

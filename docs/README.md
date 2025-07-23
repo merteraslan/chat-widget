@@ -16,7 +16,7 @@ Welcome to the comprehensive documentation for the Chat Widget - a modern, light
 - [**Article Messages**](./interactive-messages/articles.md) - Documentation and link messages
 - [**Form Messages**](./interactive-messages/forms.md) - Interactive data collection
 - [**Card Messages**](./interactive-messages/cards.md) - Rich visual content with images
-- [**Quick Reply Messages**](./interactive-messages/quick-replies.md) - Canned response buttons
+- [**Quick Reply Messages**](./interactive-messages/canned-responses.md) - Canned response buttons
 
 ### Integration & Deployment
 
@@ -45,7 +45,7 @@ Welcome to the comprehensive documentation for the Chat Widget - a modern, light
 
 ## 📦 Package Information
 
-- **Current Version**: 0.6.0
+- **Current Version**: 0.6.3
 - **License**: MIT
 - **Repository**: [GitHub](https://github.com/merteraslan/chat-widget)
 - **NPM Package**: `@merteraslan/chat-widget`
@@ -68,4 +68,4 @@ Welcome to the comprehensive documentation for the Chat Widget - a modern, light
 
 ---
 
-Last updated: July 23, 2025 | Version 0.6.0
+Last updated: July 23, 2025 | Version 0.6.3

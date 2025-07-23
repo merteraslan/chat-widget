@@ -75,10 +75,12 @@ If you're using Content Security Policy, you may need to allow:
 
 The Chat Widget includes several built-in security features:
 
-- **XSS Protection**: All user input is sanitized to prevent cross-site scripting attacks
+- **XSS Protection**: User input is automatically escaped by React's built-in JSX rendering, preventing cross-site scripting attacks
 - **CSRF Token Support**: Optional CSRF token integration for additional security
 - **Secure Communication**: Supports HTTPS-only webhook communication
-- **Content Sanitization**: Interactive message content is properly escaped and validated
+- **Content Escaping**: Interactive message content is safely rendered through React's automatic escaping mechanisms
+
+**Note**: The widget relies on React's default XSS protection through automatic text escaping. No additional content sanitization libraries are included. If you need to render HTML content from untrusted sources, implement proper sanitization in your webhook responses before sending data to the widget.
 
 ## Scope
 

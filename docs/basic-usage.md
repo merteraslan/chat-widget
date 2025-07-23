@@ -30,6 +30,9 @@ function App() {
   color="#3b82f6"
   agentName="Support Bot"
   sessionId="user-session-123"
+  placeholder="Type your message here..."
+  openByDefault={false}
+  className="my-chat-widget"
 />
 ```
 
@@ -42,12 +45,14 @@ function App() {
 REACT_APP_WEBHOOK_URL=https://your-api.com/chat
 REACT_APP_CHAT_COLOR=#3b82f6
 REACT_APP_AGENT_NAME=Support Assistant
+REACT_APP_CHAT_TITLE=Customer Support
 
 // Component
 <ChatWidget
   webhookUrl={process.env.REACT_APP_WEBHOOK_URL}
   color={process.env.REACT_APP_CHAT_COLOR}
   agentName={process.env.REACT_APP_AGENT_NAME}
+  title={process.env.REACT_APP_CHAT_TITLE}
 />
 ```
 
@@ -156,7 +161,25 @@ For rich interactions, use content types:
 <ChatWidget
   webhookUrl="https://your-api.com/chat"
   color="#1f2937" // Your brand color
+  title="Brand Assistant"
+  agentName="Brand Bot"
 />
+```
+
+### Color Examples
+
+```tsx
+// Blue theme
+<ChatWidget color="#3b82f6" title="Blue Chat" />
+
+// Green theme  
+<ChatWidget color="#059669" title="Green Chat" />
+
+// Purple theme
+<ChatWidget color="#7c3aed" title="Purple Chat" />
+
+// Red theme
+<ChatWidget color="#dc2626" title="Red Chat" />
 ```
 
 ### Dark Mode Support
@@ -178,12 +201,12 @@ function App() {
 
 ```css
 /* Override specific styles if needed */
-.chat-widget {
+.mw-chat {
   --widget-primary-color: #custom-color;
 }
 
 /* Adjust z-index if needed */
-.chat-widget-toggle {
+.mw-toggle {
   z-index: 9999 !important;
 }
 ```

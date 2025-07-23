@@ -20,8 +20,8 @@ The main chat widget React component.
 
 #### title (optional)
 
-- **Type**: `string`
-- **Default**: `"AI Assistant"`
+- **Type**: `React.ReactNode`
+- **Default**: `"Chat"`
 - **Description**: The title displayed in the chat widget header
 - **Example**: `"Support Bot"`
 
@@ -49,7 +49,7 @@ The main chat widget React component.
 #### sessionId (optional)
 
 - **Type**: `string`
-- **Default**: `"sample_session"`
+- **Default**: `undefined`
 - **Description**: Unique identifier for the chat session, sent with each request
 - **Example**: `"user-12345-session"`
 
@@ -63,8 +63,8 @@ The main chat widget React component.
 #### csrfToken (optional)
 
 - **Type**: `string`
-- **Default**: `""`
-- **Description**: CSRF token sent as `X-CSRFToken` header for security
+- **Default**: `undefined`
+- **Description**: CSRF token sent as `X-CSRF-Token` header for security
 - **Example**: `"abc123def456"`
 
 ```tsx
@@ -99,6 +99,48 @@ The main chat widget React component.
 - Card action buttons
 - Agent name labels
 
+#### placeholder (optional)
+
+- **Type**: `string`
+- **Default**: `"Type a message…"`
+- **Description**: Placeholder text shown in the input field
+- **Example**: `"Ask me anything..."`
+
+```tsx
+<ChatWidget 
+  webhookUrl="https://your-api.com/chat"
+  placeholder="How can I help you?"
+/>
+```
+
+#### openByDefault (optional)
+
+- **Type**: `boolean`
+- **Default**: `false`
+- **Description**: Whether the chat window should open automatically when the component mounts
+- **Example**: `true`
+
+```tsx
+<ChatWidget 
+  webhookUrl="https://your-api.com/chat"
+  openByDefault={true}
+/>
+```
+
+#### className (optional)
+
+- **Type**: `string`
+- **Default**: `""`
+- **Description**: Additional CSS class name(s) to apply to the widget container
+- **Example**: `"my-custom-chat"`
+
+```tsx
+<ChatWidget 
+  webhookUrl="https://your-api.com/chat"
+  className="custom-widget"
+/>
+```
+
 #### agentName (optional)
 
 - **Type**: `string`
@@ -120,10 +162,13 @@ The main chat widget React component.
 ```typescript
 interface ChatWidgetProps {
   webhookUrl: string;
-  title?: string;
+  title?: React.ReactNode;
   initialMessage?: string;
   sessionId?: string;
   csrfToken?: string;
+  placeholder?: string;
+  openByDefault?: boolean;
+  className?: string;
   color?: string;
   agentName?: string;
 }
@@ -249,26 +294,37 @@ You can override these in your CSS for advanced customization:
 
 ### Main Container Classes
 
-- `.chat-widget` - Main widget container
-- `.chat-widget-toggle` - Floating toggle button
-- `.chat-widget-window` - Expanded chat window
-- `.chat-widget-header` - Window header
-- `.chat-widget-messages` - Messages container
-- `.chat-widget-input` - Input area
+- `.mw-chat` - Main widget container
+- `.mw-toggle` - Floating toggle button
+- `.mw-window` - Expanded chat window
+- `.mw-header` - Window header
+- `.mw-title` - Header title
+- `.mw-close` - Close button
+- `.mw-messages` - Messages container
+- `.mw-inputbar` - Input area container
+- `.mw-input` - Text input field
+- `.mw-send` - Send button
 
 ### Message Classes
 
-- `.message` - Base message class
-- `.message-user` - User messages
-- `.message-agent` - Agent messages
-- `.message-interactive` - Interactive message container
+- `.mw-msg` - Base message class
+- `.mw-user` - User messages
+- `.mw-assistant` - Assistant/bot messages
+- `.mw-message-bubble` - Message bubble container
+- `.mw-message-time` - Message timestamp
+- `.mw-agent-name` - Agent name label
+- `.mw-typing` - Typing indicator
+- `.mw-welcome` - Welcome message container
 
 ### Interactive Message Classes
 
 - `.interactive-article` - Article message container
 - `.interactive-form` - Form message container
 - `.interactive-card` - Card message container
-- `.interactive-canned-response` - Quick reply container
+- `.interactive-canned-responses` - Quick reply container
+- `.response-button` - Individual response button
+- `.response-text` - Response button text
+- `.response-icon` - Response button icon
 
 ## Accessibility
 
@@ -396,8 +452,8 @@ The widget is compatible with:
 
 ## Version Information
 
-- **Current Version**: 0.0.4
-- **React Peer Dependency**: ^19.1.0
+- **Current Version**: 0.6.3
+- **React Peer Dependency**: ^18.0.0 || ^19.0.0
 - **Node.js Requirement**: 18.0.0+
 - **TypeScript Support**: Full
 

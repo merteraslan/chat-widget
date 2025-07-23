@@ -19,6 +19,7 @@ yarn add @merteraslan/chat-widget
 
 ```tsx
 import { ChatWidget } from '@merteraslan/chat-widget';
+import '@merteraslan/chat-widget/dist/style.css';
 
 export default function App() {
   return (
@@ -27,6 +28,9 @@ export default function App() {
       title="Need help?"
       initialMessage="Hey! Ask me anything."
       sessionId="user-123"
+      agentName="Support Bot"
+      color="#3b82f6"
+      placeholder="Type your question..."
       csrfToken={window.__CSRF__}
     />
   );
@@ -37,18 +41,42 @@ export default function App() {
 
 | Prop | Type | Required | Description |
 |------|------|----------|-------------|
-| `webhookUrl` | `string` | ✅ | Endpoint that receives `{ prompt, session_id }` and returns `{ reply }`. |
-| `title` | `React.ReactNode` | ❌ | Text or component shown in the header. |
-| `initialMessage` | `string` | ❌ | Bot message inserted on first render. |
+| `webhookUrl` | `string` | ✅ | Endpoint that receives `{ prompt, session_id }` and returns response data. |
+| `title` | `React.ReactNode` | ❌ | Text or component shown in the header. Default: `"Chat"`. |
+| `initialMessage` | `string` | ❌ | Bot message inserted on first render. Default: `"Hello! How can I help you today?"`. |
 | `sessionId` | `string` | ❌ | Passed through to your backend as `session_id`. |
 | `csrfToken` | `string` | ❌ | Sent as `X-CSRF-Token` header. |
+| `placeholder` | `string` | ❌ | Input field placeholder text. Default: `"Type a message…"`. |
+| `openByDefault` | `boolean` | ❌ | Whether chat opens automatically. Default: `false`. |
+| `className` | `string` | ❌ | Additional CSS class for the widget container. |
+| `color` | `string` | ❌ | Primary color for theming (hex format). |
+| `agentName` | `string` | ❌ | Name prefix for assistant messages. |
 
-## Response format
+## Response Formats
 
-Your server should answer with JSON like:
+### Simple Text Response
 
 ```json
-{ "reply": "Hello there!" }
+{
+  "output": "Hello there!"
+}
+```
+
+### Interactive Content Response
+
+```json
+{
+  "content": "Choose an option:",
+  "content_type": "canned_response",
+  "content_attributes": {
+    "responses": {
+      "responses": [
+        { "id": "help", "text": "I need help" },
+        { "id": "info", "text": "Tell me more" }
+      ]
+    }
+  }
+}
 ```
 
 ## What gets sent
@@ -62,26 +90,66 @@ Your server should answer with JSON like:
 
 If you provided a CSRF token, the request includes: `X-CSRF-Token: <token>`.
 
-## Interactive Cards
+## Interactive Messages
 
-For richer content, you can send interactive cards with images, buttons, and structured data:
+The widget supports rich interactive content beyond simple text. You can send:
+
+### Canned Responses / Quick Replies
 
 ```json
 {
-  "content": "Check out these products:",
-  "content_type": "card", 
+  "content": "How can I help you?",
+  "content_type": "canned_response",
   "content_attributes": {
-    "cards": {
-      "title": "Featured Items",
-      "cards": [
+    "responses": {
+      "responses": [
+        { "id": "support", "text": "Technical Support" },
+        { "id": "billing", "text": "Billing Questions" }
+      ]
+    }
+  }
+}
+```
+
+### Article Links
+
+```json
+{
+  "content": "Here are some helpful resources:",
+  "content_type": "article",
+  "content_attributes": {
+    "items": [
+      {
+        "title": "API Documentation",
+        "description": "Complete API reference guide",
+        "link": "https://docs.example.com/api"
+      }
+    ]
+  }
+}
+```
+
+### Interactive Forms
+
+```json
+{
+  "content": "Please fill out this form:",
+  "content_type": "form",
+  "content_attributes": {
+    "form": {
+      "title": "Contact Information",
+      "fields": [
         {
-          "title": "Wireless Headphones",
-          "description": "Premium noise-canceling with 30h battery",
-          "image": "https://example.com/headphones.jpg",
-          "price": "$299",
-          "badge": "BESTSELLER",
-          "link": "https://shop.example.com/headphones",
-          "linkText": "Buy Now"
+          "id": "name",
+          "type": "text",
+          "label": "Your Name",
+          "required": true
+        },
+        {
+          "id": "email",
+          "type": "email",
+          "label": "Email Address",
+          "required": true
         }
       ]
     }
@@ -89,7 +157,29 @@ For richer content, you can send interactive cards with images, buttons, and str
 }
 ```
 
-Cards support images, prices, badges, clickable links, and responsive layouts.
+### Product/Service Cards
+
+```json
+{
+  "content": "Check out these options:",
+  "content_type": "card",
+  "content_attributes": {
+    "cards": {
+      "cards": [
+        {
+          "title": "Premium Plan",
+          "description": "Advanced features for power users",
+          "image": "https://example.com/image.jpg",
+          "price": "$29/month",
+          "badge": "POPULAR",
+          "link": "https://example.com/signup",
+          "linkText": "Sign Up"
+        }
+      ]
+    }
+  }
+}
+```
 
 ## Styling
 

@@ -1,7 +1,7 @@
 {
   "name": "@merteraslan/chat-widget",
-  "version": "0.6.4",
-  "description": "A modern Chat widget using webhooks.",
+  "version": "0.6.3",
+  "description": "A modern, lightweight React chat widget with interactive message support and webhook integration.",
   "type": "module",
   "main": "dist/chat-widget.umd.js",
   "module": "dist/chat-widget.es.js",
@@ -69,8 +69,8 @@
     "test:ui": "vitest --ui"
   },
   "peerDependencies": {
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.30.1",
