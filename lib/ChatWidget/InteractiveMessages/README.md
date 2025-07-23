@@ -111,83 +111,27 @@ Add appropriate CSS classes to the main `style.css` file following the naming co
 - `.interactive-my-message` for the main container
 - `.my-message-*` for specific elements
 
-## Example Interactive Content Types
+## Implementation Examples
 
-### Article Messages
+For detailed JSON message formats and complete schemas, see the **[Message Schema Documentation](../../../docs/message-schema.md)**.
 
-```json
+### Basic Article Message Structure
+
+```tsx
+// Component handles this internally when receiving:
 {
-  "content": "Here are some relevant articles:",
-  "content_type": "article",
-  "content_attributes": {
-    "items": [
-      {
-        "title": "Article Title",
-        "description": "Article description",
-        "link": "https://example.com"
-      }
-    ]
-  }
+  content_type: "article",
+  content_attributes: { items: [...] }
 }
 ```
 
-### Form Messages
+### Basic Form Message Structure  
 
-```json
+```tsx
+// Component handles this internally when receiving:
 {
-  "content": "Please fill out this contact form:",
-  "content_type": "form",
-  "content_attributes": {
-    "form": {
-      "title": "Contact Us",
-      "description": "We'd love to hear from you! Please fill out the form below.",
-      "fields": [
-        {
-          "id": "name",
-          "type": "text",
-          "label": "Full Name",
-          "placeholder": "Enter your full name",
-          "required": true
-        },
-        {
-          "id": "email",
-          "type": "email",
-          "label": "Email Address",
-          "placeholder": "your@email.com",
-          "required": true,
-          "validation": {
-            "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$",
-            "message": "Please enter a valid email address"
-          }
-        },
-        {
-          "id": "subject",
-          "type": "select",
-          "label": "Subject",
-          "required": true,
-          "options": [
-            { "value": "general", "label": "General Inquiry" },
-            { "value": "support", "label": "Technical Support" },
-            { "value": "feedback", "label": "Feedback" }
-          ]
-        },
-        {
-          "id": "message",
-          "type": "textarea",
-          "label": "Message",
-          "placeholder": "Tell us how we can help...",
-          "required": true
-        },
-        {
-          "id": "newsletter",
-          "type": "checkbox",
-          "label": "Subscribe to our newsletter"
-        }
-      ],
-      "submitLabel": "Send Message",
-      "submitUrl": "/api/contact-form"
-    }
-  }
+  content_type: "form", 
+  content_attributes: { form: { fields: [...] } }
 }
 ```
 

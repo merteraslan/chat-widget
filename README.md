@@ -1,11 +1,8 @@
 # @merteraslan/chat-widget
 
-A tiny React chat bubble that talks to **your** backend. Drop it in, point it at an endpoint, and you're done.
+## Why this widget
 
-- No vendor lock‑in — it just POSTs the user's text to your URL and renders whatever you send back.
-- Toggleable floating window with a minimal UI.
-- Optional initial bot message and session tracking.
-- MIT licensed.
+Build customer conversations without getting trapped by third-party chat platforms. This React component connects directly to your own backend, giving you complete control over data, styling, and functionality. You keep ownership of every conversation while getting a production-ready chat interface in minutes.
 
 ## Install
 
@@ -14,6 +11,34 @@ npm i @merteraslan/chat-widget
 # or
 yarn add @merteraslan/chat-widget
 ```
+
+## How requests are shaped
+
+When users send messages, the widget transmits a JSON payload to your configured endpoint:
+
+```json
+{
+  "prompt": "What are your business hours?",
+  "session_id": "visitor-456"
+}
+```
+
+Your server responds with either plain text wrapped in an `output` field, or structured content for interactive features. CSRF protection headers are automatically included when you provide a token.
+
+## Props
+
+| Prop | Type | Required | Description |
+|------|------|----------|-------------|
+| `color` | `string` | ❌ | Accent color applied throughout the interface using hex notation. |
+| `agentName` | `string` | ❌ | Display name that appears alongside bot responses. |
+| `webhookUrl` | `string` | ✅ | The HTTP endpoint your backend exposes. The widget POSTs a JSON payload with the user's text and the sessionId. You own the endpoint; return a plain string in the field you configure (default: output). |
+| `openByDefault` | `boolean` | ❌ | Controls initial widget visibility when the page loads. Default: `false`. |
+| `placeholder` | `string` | ❌ | Hint text displayed inside the message input field. Default: `"Share your thoughts..."`. |
+| `csrfToken` | `string` | ❌ | Security token transmitted via `X-CSRF-Token` header with each request. |
+| `title` | `React.ReactNode` | ❌ | Content rendered in the chat window header area. Default: `"Assistant"`. |
+| `sessionId` | `string` | ❌ | Unique identifier forwarded to your backend for conversation tracking. |
+| `initialMessage` | `string` | ❌ | Opening message from the bot when chat first appears. Default: `"Hi there! What can I do for you?"`. |
+| `className` | `string` | ❌ | Custom CSS class applied to the root widget element. |
 
 ## Quick Start
 
@@ -24,33 +49,18 @@ import '@merteraslan/chat-widget/dist/style.css';
 export default function App() {
   return (
     <ChatWidget
-      webhookUrl="/api/chat"
-      title="Need help?"
-      initialMessage="Hey! Ask me anything."
-      sessionId="user-123"
-      agentName="Support Bot"
-      color="#3b82f6"
-      placeholder="Type your question..."
+      webhookUrl="/api/conversations"
+      title="Customer Support"
+      initialMessage="Welcome! How can we assist you today?"
+      sessionId="guest-789"
+      agentName="Alex"
+      color="#059669"
+      placeholder="Describe your question..."
       csrfToken={window.__CSRF__}
     />
   );
 }
 ```
-
-## Props
-
-| Prop | Type | Required | Description |
-|------|------|----------|-------------|
-| `webhookUrl` | `string` | ✅ | Endpoint that receives `{ prompt, session_id }` and returns response data. |
-| `title` | `React.ReactNode` | ❌ | Text or component shown in the header. Default: `"Chat"`. |
-| `initialMessage` | `string` | ❌ | Bot message inserted on first render. Default: `"Hello! How can I help you today?"`. |
-| `sessionId` | `string` | ❌ | Passed through to your backend as `session_id`. |
-| `csrfToken` | `string` | ❌ | Sent as `X-CSRF-Token` header. |
-| `placeholder` | `string` | ❌ | Input field placeholder text. Default: `"Type a message…"`. |
-| `openByDefault` | `boolean` | ❌ | Whether chat opens automatically. Default: `false`. |
-| `className` | `string` | ❌ | Additional CSS class for the widget container. |
-| `color` | `string` | ❌ | Primary color for theming (hex format). |
-| `agentName` | `string` | ❌ | Name prefix for assistant messages. |
 
 ## Response Formats
 
@@ -58,7 +68,7 @@ export default function App() {
 
 ```json
 {
-  "output": "Hello there!"
+  "output": "Our store opens at 9 AM Monday through Friday!"
 }
 ```
 
@@ -66,45 +76,34 @@ export default function App() {
 
 ```json
 {
-  "content": "Choose an option:",
+  "content": "Pick a category:",
   "content_type": "canned_response",
   "content_attributes": {
     "responses": {
       "responses": [
-        { "id": "help", "text": "I need help" },
-        { "id": "info", "text": "Tell me more" }
+        { "id": "orders", "text": "Order status" },
+        { "id": "returns", "text": "Returns & refunds" }
       ]
     }
   }
 }
 ```
 
-## What gets sent
-
-```json
-{
-  "prompt": "The text the user typed",
-  "session_id": "whatever you passed as sessionId"
-}
-```
-
-If you provided a CSRF token, the request includes: `X-CSRF-Token: <token>`.
-
 ## Interactive Messages
 
-The widget supports rich interactive content beyond simple text. You can send:
+Beyond basic text exchanges, the widget renders rich interactive elements that enhance user engagement. Your backend can send structured responses that become clickable buttons, forms, article links, and product showcases.
 
 ### Canned Responses / Quick Replies
 
 ```json
 {
-  "content": "How can I help you?",
+  "content": "Which department can help you?",
   "content_type": "canned_response",
   "content_attributes": {
     "responses": {
       "responses": [
-        { "id": "support", "text": "Technical Support" },
-        { "id": "billing", "text": "Billing Questions" }
+        { "id": "tech", "text": "Technical Issues" },
+        { "id": "sales", "text": "Sales Inquiry" }
       ]
     }
   }
@@ -115,14 +114,14 @@ The widget supports rich interactive content beyond simple text. You can send:
 
 ```json
 {
-  "content": "Here are some helpful resources:",
+  "content": "Browse these helpful guides:",
   "content_type": "article",
   "content_attributes": {
     "items": [
       {
-        "title": "API Documentation",
-        "description": "Complete API reference guide",
-        "link": "https://docs.example.com/api"
+        "title": "Getting Started Guide",
+        "description": "Step-by-step setup instructions",
+        "link": "https://help.example.com/setup"
       }
     ]
   }
@@ -133,23 +132,23 @@ The widget supports rich interactive content beyond simple text. You can send:
 
 ```json
 {
-  "content": "Please fill out this form:",
+  "content": "Complete this information request:",
   "content_type": "form",
   "content_attributes": {
     "form": {
-      "title": "Contact Information",
+      "title": "Support Ticket",
       "fields": [
         {
-          "id": "name",
+          "id": "issue",
           "type": "text",
-          "label": "Your Name",
+          "label": "Describe the problem",
           "required": true
         },
         {
-          "id": "email",
-          "type": "email",
-          "label": "Email Address",
-          "required": true
+          "id": "priority",
+          "type": "select",
+          "label": "Urgency level",
+          "required": false
         }
       ]
     }
@@ -161,19 +160,19 @@ The widget supports rich interactive content beyond simple text. You can send:
 
 ```json
 {
-  "content": "Check out these options:",
+  "content": "Explore these solutions:",
   "content_type": "card",
   "content_attributes": {
     "cards": {
       "cards": [
         {
-          "title": "Premium Plan",
-          "description": "Advanced features for power users",
-          "image": "https://example.com/image.jpg",
-          "price": "$29/month",
-          "badge": "POPULAR",
-          "link": "https://example.com/signup",
-          "linkText": "Sign Up"
+          "title": "Enterprise Package",
+          "description": "Full-featured solution for large teams",
+          "image": "https://cdn.example.com/enterprise.png",
+          "price": "$99/month",
+          "badge": "RECOMMENDED",
+          "link": "https://example.com/enterprise",
+          "linkText": "Learn More"
         }
       ]
     }
@@ -183,9 +182,9 @@ The widget supports rich interactive content beyond simple text. You can send:
 
 ## Styling
 
-The widget ships with scoped CSS classes. Override anything with stronger selectors or by adding a wrapper and using `:where()`.
+The component includes self-contained CSS with scoped class names to avoid conflicts. Customize the appearance by targeting specific selectors with higher specificity or by wrapping the widget in a container with custom CSS.
 
-If you want total control, fork the component or swap out the markup — the code is short.
+For complete design control, the source code is intentionally compact and readable — perfect for forking and modifying to match your exact requirements.
 
 ## Development
 

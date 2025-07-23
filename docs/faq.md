@@ -197,144 +197,29 @@ Ensure your form field validation patterns are valid RegEx:
 
 ## Server-Side Rendering (SSR)
 
+For comprehensive SSR setup instructions, see **[Installation & Setup - Next.js](./installation.md#nextjs)**.
+
 ### Problem: "window is not defined" or "document is not defined"
 
-The widget uses browser APIs that aren't available during SSR.
-
-#### Solution 1: Dynamic Import (Recommended)
-
-```jsx
-import { useState, useEffect } from 'react';
-
-function MyComponent() {
-  const [ChatWidget, setChatWidget] = useState(null);
-
-  useEffect(() => {
-    import('@merteraslan/chat-widget').then((module) => {
-      setChatWidget(() => module.ChatWidget);
-    });
-  }, []);
-
-  if (!ChatWidget) return null;
-
-  return (
-    <ChatWidget
-      webhookUrl="https://your-api.com/chat"
-      title="AI Assistant"
-    />
-  );
-}
-```
-
-#### Solution 2: Next.js Dynamic Import
-
-```jsx
-import dynamic from 'next/dynamic';
-
-const ChatWidget = dynamic(
-  () => import('@merteraslan/chat-widget').then(mod => ({ default: mod.ChatWidget })),
-  { ssr: false }
-);
-
-export default function Page() {
-  return (
-    <div>
-      <h1>My Page</h1>
-      <ChatWidget webhookUrl="https://your-api.com/chat" />
-    </div>
-  );
-}
-```
-
-#### Solution 3: Conditional Rendering
-
-```jsx
-import { useState, useEffect } from 'react';
-import { ChatWidget } from '@merteraslan/chat-widget';
-
-function MyComponent() {
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  if (!isClient) return null;
-
-  return (
-    <ChatWidget
-      webhookUrl="https://your-api.com/chat"
-      title="AI Assistant"
-    />
-  );
-}
-```
-
-### Problem: Hydration Mismatches
-
-Ensure the component renders the same on server and client:
-
-```jsx
-// Use a loading state that matches SSR
-const [mounted, setMounted] = useState(false);
-
-useEffect(() => {
-  setMounted(true);
-}, []);
-
-return mounted ? <ChatWidget {...props} /> : <div className="chat-widget-loading" />;
-```
+The widget uses browser APIs that aren't available during SSR. The installation guide provides multiple solutions including dynamic imports and conditional rendering.
 
 ## Installation & Package Issues
 
-### Problem: "Package not found"
+For comprehensive installation instructions, see **[Installation & Setup](./installation.md)**.
 
-If you encounter a "package not found" error, ensure you're using the correct package name.
+### Problem: Import or Module Errors
 
-#### Solution: Standard npm Installation
+If you encounter import errors after installation:
 
-Install the package using npm:
-
-```bash
-npm install @merteraslan/chat-widget
+```jsx
+// Ensure correct import syntax
+import { ChatWidget } from '@merteraslan/chat-widget';
+import '@merteraslan/chat-widget/dist/style.css';
 ```
 
-Or using yarn:
+### Problem: Version Conflicts  
 
-```bash
-yarn add @merteraslan/chat-widget
-```
-
-Or using pnpm:
-
-```bash
-pnpm add @merteraslan/chat-widget
-```
-
-### Problem: Version Conflicts
-
-#### Check Peer Dependencies
-
-Ensure you have compatible React versions:
-
-```json
-{
-  "peerDependencies": {
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0"
-  }
-}
-```
-
-#### Force Resolution (if needed)
-
-```json
-{
-  "overrides": {
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0"
-  }
-}
+Check that you have compatible React versions. See [Installation Guide](./installation.md#troubleshooting-installation) for detailed compatibility information.
 ```
 
 ## Styling & Theming

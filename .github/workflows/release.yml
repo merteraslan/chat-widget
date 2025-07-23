@@ -24,16 +24,29 @@ on:
         type: string
 
 jobs:
+  pre-release-validation:
+    name: Pre-release Validation
+    uses: ./.github/workflows/_ci.yml
+    with:
+      node-versions: '["20.x"]'
+      run-lint: true
+      run-tests: true
+      run-build: true
+      run-typecheck: false
+      run-security-audit: false
+      package-manager: 'npm'
+
   create-release:
     name: Create Release
     runs-on: ubuntu-latest
+    needs: pre-release-validation
     
     permissions:
       contents: write
       pull-requests: write
       
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -46,15 +59,6 @@ jobs:
           
       - name: Install dependencies
         run: npm ci
-        
-      - name: Run tests
-        run: npm run test:run
-        
-      - name: Run linting
-        run: npm run lint
-        
-      - name: Build project
-        run: npm run build
         
       - name: Configure git
         run: |
@@ -187,14 +191,29 @@ jobs:
   publish-to-npm:
     name: Publish to NPM
     needs: create-release
+    uses: ./.github/workflows/_ci.yml
+    with:
+      node-versions: '["20.x"]'
+      run-lint: true
+      run-tests: true
+      run-build: true
+      run-typecheck: false
+      run-security-audit: false
+      package-manager: 'npm'
+    secrets:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  npm-publish-finalize:
+    name: Finalize NPM Publication
     runs-on: ubuntu-latest
+    needs: [create-release, publish-to-npm]
     
     permissions:
       contents: read
       id-token: write  # Required for npm provenance
       
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           ref: main  # Make sure we get the updated version
@@ -234,12 +253,6 @@ jobs:
             echo "✅ Version $PACKAGE_VERSION is available for publishing"
           fi
           
-      - name: Run linting
-        run: npm run lint
-        
-      - name: Run tests
-        run: npm run test:run
-        
       - name: Build project
         run: npm run build
         

@@ -6,7 +6,7 @@ import dts from "vite-plugin-dts";
 import { libInjectCss } from "vite-plugin-lib-inject-css";
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
     plugins: [
         react(),
         libInjectCss(),
@@ -17,6 +17,7 @@ export default defineConfig({
         })
     ],
     build: {
+        emptyOutDir: mode !== 'bundle',
         lib: {
             entry: resolve(__dirname, "lib/index.ts"),
             name: "ChatWidget",
@@ -55,4 +56,4 @@ export default defineConfig({
             ],
         },
     },
-});
+}));

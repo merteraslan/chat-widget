@@ -56,7 +56,12 @@
   "scripts": {
     "dev": "vite",
     "prebuild": "rimraf dist",
-    "build": "tsc -b ./tsconfig.lib.json && vite build",
+    "build": "npm run build:lib && npm run build:bundle",
+    "build:lib": "tsup",
+    "build:bundle": "vite build --mode bundle",
+    "build:types": "tsc -b ./tsconfig.lib.json",
+    "typecheck": "tsc --noEmit",
+    "typecheck:lib": "tsc -b ./tsconfig.lib.json --noEmit",
     "lint": "eslint .",
     "preview": "vite preview",
     "prepublish": "npm run build",

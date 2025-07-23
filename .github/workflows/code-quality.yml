@@ -7,12 +7,27 @@ on:
     branches: [ main ]
 
 jobs:
-  code-quality:
+  ci:
     name: Code Quality Checks
+    uses: ./.github/workflows/_ci.yml
+    with:
+      node-versions: '["20.x"]'
+      run-lint: true
+      run-tests: false
+      run-build: true
+      run-typecheck: false
+      run-security-audit: false
+      run-codeql: true
+      run-dependency-review: true
+      package-manager: 'npm'
+
+  code-analysis:
+    name: Additional Code Analysis
     runs-on: ubuntu-latest
+    needs: ci
     
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -25,9 +40,6 @@ jobs:
           
       - name: Install dependencies
         run: npm ci
-        
-      - name: Run ESLint
-        run: npm run lint
         
       - name: Check bundle size
         run: |
@@ -54,49 +66,3 @@ jobs:
             npx bundlephobia-cli dist/chat-widget.es.js || echo "Bundle analysis completed"
             echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           fi
-
-  dependency-review:
-    name: Dependency Review
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        
-      - name: Dependency Review
-        uses: actions/dependency-review-action@v4
-        with:
-          fail-on-severity: moderate
-          
-  codeql:
-    name: CodeQL Analysis
-    runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
-      
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          languages: javascript
-          
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20.x'
-          cache: 'npm'
-          
-      - name: Install dependencies
-        run: npm ci
-        
-      - name: Build project
-        run: npm run build
-        
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3

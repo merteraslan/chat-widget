@@ -134,7 +134,9 @@ REACT_APP_CHAT_COLOR=#3b82f6
 
 ### Next.js
 
-For Next.js applications, you may need to handle SSR:
+Next.js requires special handling due to Server-Side Rendering (SSR). The widget uses browser APIs not available on the server.
+
+#### Option 1: Dynamic Import (Recommended)
 
 ```tsx
 import dynamic from 'next/dynamic';
@@ -152,6 +154,69 @@ export default function Page() {
     </div>
   );
 }
+```
+
+#### Option 2: Conditional Rendering
+
+```tsx
+import { useState, useEffect } from 'react';
+import { ChatWidget } from '@merteraslan/chat-widget';
+
+function MyComponent() {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) return null;
+
+  return (
+    <ChatWidget
+      webhookUrl="https://your-api.com/chat"
+      title="AI Assistant"
+    />
+  );
+}
+```
+
+#### Option 3: Manual Dynamic Loading  
+
+```tsx
+import { useState, useEffect } from 'react';
+
+function MyComponent() {
+  const [ChatWidget, setChatWidget] = useState(null);
+
+  useEffect(() => {
+    import('@merteraslan/chat-widget').then((module) => {
+      setChatWidget(() => module.ChatWidget);
+    });
+  }, []);
+
+  if (!ChatWidget) return null;
+
+  return (
+    <ChatWidget
+      webhookUrl="https://your-api.com/chat"
+      title="AI Assistant"
+    />
+  );
+}
+```
+
+#### Avoiding Hydration Mismatches
+
+Ensure consistent rendering between server and client:
+
+```tsx
+const [mounted, setMounted] = useState(false);
+
+useEffect(() => {
+  setMounted(true);
+}, []);
+
+return mounted ? <ChatWidget {...props} /> : <div className="chat-widget-loading" />;
 ```
 
 ### Vite

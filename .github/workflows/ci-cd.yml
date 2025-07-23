@@ -9,94 +9,27 @@ on:
     types: [ published ]
 
 jobs:
-  lint-and-test:
-    name: Lint & Test
-    runs-on: ubuntu-latest
-    
-    strategy:
-      matrix:
-        node-version: [18.x, 20.x, 22.x]
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        
-      - name: Setup Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-          
-      - name: Install dependencies
-        run: npm ci
-        
-      - name: Run linting
-        run: npm run lint
-        
-      - name: Run tests
-        run: npm run test:run
-        
-      - name: Build project
-        run: npm run build
-        
-      - name: Upload build artifacts
-        if: matrix.node-version == '20.x'
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-artifacts
-          path: dist/
-          retention-days: 7
-
-  type-check:
-    name: Type Check
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20.x'
-          cache: 'npm'
-          
-      - name: Install dependencies
-        run: npm ci
-        
-      - name: Run type checking
-        run: npx tsc --noEmit
-        
-  security-audit:
-    name: Security Audit
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20.x'
-          cache: 'npm'
-          
-      - name: Install dependencies
-        run: npm ci
-        
-      - name: Run security audit
-        run: npm audit --audit-level=moderate
-        
-      - name: Check for known vulnerabilities
-        run: npm audit signatures || true  # Don't fail if no packages have signatures yet
+  ci:
+    name: Continuous Integration
+    uses: ./.github/workflows/_ci.yml
+    with:
+      node-versions: '["18.x", "20.x", "22.x"]'
+      run-lint: true
+      run-tests: true
+      run-build: true
+      run-typecheck: true
+      run-security-audit: true
+      upload-artifacts: true
+      package-manager: 'npm'
 
   validate-release:
     name: Validate Release
     runs-on: ubuntu-latest
+    needs: ci
     if: github.event_name == 'release' && github.event.action == 'published'
     
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
         
       - name: Setup Node.js
@@ -125,7 +58,7 @@ jobs:
   publish:
     name: Publish to NPM
     runs-on: ubuntu-latest
-    needs: [lint-and-test, type-check, security-audit, validate-release]
+    needs: [ci, validate-release]
     if: github.event_name == 'release' && github.event.action == 'published'
     
     permissions:
@@ -133,7 +66,7 @@ jobs:
       id-token: write  # Required for provenance
     
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
         
       - name: Setup Node.js

@@ -7,23 +7,41 @@ on:
   workflow_dispatch:
 
 jobs:
+  dependency-audit:
+    name: Dependency Security Audit
+    uses: ./.github/workflows/_ci.yml
+    with:
+      node-versions: '["20.x"]'
+      run-lint: false
+      run-tests: false
+      run-build: false
+      run-typecheck: false
+      run-security-audit: true
+      package-manager: 'npm'
+
   check-dependencies:
     name: Check for Dependency Updates
     runs-on: ubuntu-latest
+    needs: dependency-audit
     
     permissions:
       contents: read
       pull-requests: write
       
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: pnpm/action-setup@v4
+        with:
+          version: latest
         
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20.x'
-          cache: 'npm'
+          cache: 'pnpm'
           
       - name: Check for outdated packages
         run: |
@@ -33,11 +51,11 @@ jobs:
           echo "" >> dependency-report.md
           
           # Check for outdated packages
-          if npm outdated --long || true; then
+          if pnpm outdated --long || true; then
             echo "### Outdated Packages" >> dependency-report.md
             echo "" >> dependency-report.md
             echo "\`\`\`" >> dependency-report.md
-            npm outdated --long >> dependency-report.md || true
+            pnpm outdated --long >> dependency-report.md || true
             echo "\`\`\`" >> dependency-report.md
           else
             echo "✅ All packages are up to date!" >> dependency-report.md
@@ -47,13 +65,13 @@ jobs:
           echo "### Security Audit" >> dependency-report.md
           echo "" >> dependency-report.md
           echo "\`\`\`" >> dependency-report.md
-          npm audit --audit-level=low >> dependency-report.md || true
+          pnpm audit --audit-level=low >> dependency-report.md || true
           echo "\`\`\`" >> dependency-report.md
           
       - name: Upload dependency report
         uses: actions/upload-artifact@v4
         with:
-          name: dependency-report
+          name: dependency-report-${{ github.run_id }}
           path: dependency-report.md
           retention-days: 30
           
@@ -61,8 +79,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Check for high/critical vulnerabilities
-          CRITICAL_VULNS=$(npm audit --audit-level=high --json | jq -r '.metadata.vulnerabilities.high + .metadata.vulnerabilities.critical' 2>/dev/null || echo "0")
+          # Check for high/critical vulnerabilities using pnpm
+          CRITICAL_VULNS=$(pnpm audit --audit-level=high --json 2>/dev/null | jq -r '.metadata.vulnerabilities.high + .metadata.vulnerabilities.critical' 2>/dev/null || echo "0")
           
           if [ "$CRITICAL_VULNS" -gt 0 ]; then
             echo "🚨 Found $CRITICAL_VULNS critical/high vulnerabilities"
@@ -80,7 +98,7 @@ jobs:
           - **Scan date:** $(date)
           
           ### Action Required
-          Please run `npm audit fix` to resolve these issues.
+          Please run `pnpm audit fix` to resolve these issues.
           
           ### Dependency Report
           See the attached dependency-report artifact for full details.
