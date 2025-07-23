@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.6.1] - 2025-07-23
+
+### Added
+- New features and enhancements
+
+### Changed
+- Improvements and updates
+
+### Fixed
+- Bug fixes and issue resolutions
+
+
 All notable changes to the Chat Widget will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
