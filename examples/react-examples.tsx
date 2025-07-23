@@ -44,8 +44,8 @@ export const BasicExample: React.FC = () => {
         webhookUrl="https://api.example.com/chat"
         title="Customer Support"
         initialMessage="Hi! How can I help you today?"
-        color="#2563eb"
         agentName="Support Assistant"
+        color="#2563eb"
       />
     </div>
   );
@@ -85,9 +85,9 @@ export const AdvancedExample: React.FC = () => {
         title="AI Assistant"
         initialMessage="Welcome! I'm here to help with your questions."
         sessionId={sessionId}
-        color="#059669"
         agentName="AI Helper"
         csrfToken="your-csrf-token"
+        color="#059669"
       />
     </div>
   );
@@ -104,8 +104,8 @@ export const MakeIntegrationExample: React.FC = () => {
         webhookUrl="https://hook.make.com/your-webhook-id"
         title="Make.com Assistant"
         initialMessage="Connected to Make.com automation!"
-        color="#6366f1"
         agentName="Automation Bot"
+        color="#6366f1"
       />
     </div>
   );
@@ -122,8 +122,8 @@ export const ZapierIntegrationExample: React.FC = () => {
         webhookUrl="https://hooks.zapier.com/hooks/catch/your-webhook-id"
         title="Zapier Assistant"
         initialMessage="Connected to Zapier workflows!"
-        color="#ff6900"
         agentName="Workflow Bot"
+        color="#ff6900"
       />
     </div>
   );
@@ -140,8 +140,8 @@ export const N8nIntegrationExample: React.FC = () => {
         webhookUrl="https://your-n8n-instance.com/webhook/your-webhook-id"
         title="n8n Assistant"
         initialMessage="Connected to n8n workflow automation!"
-        color="#ea4b4b"
         agentName="Workflow Assistant"
+        color="#ea4b4b"
       />
     </div>
   );

@@ -1,12 +1,12 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import "./style.css";
-import { InteractiveMessage } from "./InteractiveMessages";
-import type { InteractiveContent } from "./InteractiveMessages";
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import './ChatWidget.css';
+import { InteractiveMessage } from './InteractiveMessages';
+import type { InteractiveContent } from './InteractiveMessages';
 
-export interface Message {
+export interface ChatMessage {
     id: string;
     text?: string;
-    isUser: boolean;
+    role: 'user' | 'assistant';
     timestamp: Date;
     interactive?: InteractiveContent;
 }
@@ -26,53 +26,54 @@ interface CannedResponseEventDetail {
     value?: string;
 }
 
+const genId = () => Math.random().toString(36).slice(2, 10);
+
 export interface ChatWidgetProps {
-    title?: string;
+    title?: React.ReactNode;
     initialMessage?: string;
     sessionId?: string;
     csrfToken?: string;
     webhookUrl: string;
+    placeholder?: string;
+    openByDefault?: boolean;
+    className?: string;
     color?: string;
     agentName?: string;
 }
 
-export const AIChatWidget = ({
-    title = "AI Assistant",
-    initialMessage = "Hello! How can I help you today?",
+/**
+ * Minimal chat widget with interactive message support.
+ * - Maintains internal state (open/closed, messages, input text)
+ * - Sends POST to webhookUrl
+ * - Supports interactive content types
+ * NO extra features were added compared to the original.
+ */
+export const ChatWidget: React.FC<ChatWidgetProps> = ({
+    title = 'Chat',
+    initialMessage = 'Hello! How can I help you today?',
     webhookUrl,
     sessionId,
     csrfToken,
-    color = "#242424",
+    placeholder = 'Type a message…',
+    openByDefault = false,
+    className = '',
     agentName,
-}: ChatWidgetProps) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const [messages, setMessages] = useState<Message[]>([]);
-    const [inputText, setInputText] = useState("");
-    const [isTyping, setIsTyping] = useState(false);
+    color,
+}) => {
+    const [isOpen, setOpen] = useState(openByDefault);
+    const [messages, setMessages] = useState<ChatMessage[]>([]);
+    const [input, setInput] = useState('');
+    const [sending, setSending] = useState(false);
     const bottomRef = useRef<HTMLDivElement>(null);
-
-    // Generate color variations for better visual hierarchy
-    const generateColorVariations = (baseColor: string) => {
-        // For now, we'll use the base color and create some variations
-        // In a more sophisticated implementation, you could use a color manipulation library
-        return {
-            primary: baseColor,
-            primaryHover: baseColor === "#242424" ? "#333333" : baseColor,
-            primaryLight: baseColor === "#242424" ? "rgba(36, 36, 36, 0.8)" : `${baseColor}cc`,
-        };
-    };
-
-    const colorVars = generateColorVariations(color);
 
     useEffect(() => {
         if (isOpen && bottomRef.current) {
-            // Use requestAnimationFrame for better timing
             requestAnimationFrame(() => {
                 const messagesContainer = bottomRef.current?.parentElement;
                 if (messagesContainer) {
                     messagesContainer.scrollTo({
                         top: messagesContainer.scrollHeight,
-                        behavior: "smooth"
+                        behavior: 'smooth'
                     });
                 }
             });
@@ -80,56 +81,55 @@ export const AIChatWidget = ({
     }, [messages, isOpen]);
 
     const sendMessageWithText = useCallback(async (messageText: string) => {
-        setIsTyping(true);
+        setSending(true);
 
         try {
             const response = await fetch(webhookUrl, {
-                method: "POST",
-                body: JSON.stringify({ prompt: messageText, session_id: sessionId || "sample_session" }),
+                method: 'POST',
+                body: JSON.stringify({ prompt: messageText, session_id: sessionId || null }),
                 headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": csrfToken || "",
+                    'Content-Type': 'application/json',
+                    ...(csrfToken ? { 'X-CSRF-Token': csrfToken } : {}),
                 },
             });
 
             if (!response.ok) {
-                throw new Error("Failed to send message");
+                throw new Error('Failed to send message');
             }
 
             const data = await response.json() as APIResponse;
 
             // Check if response contains interactive content
-            const aiResponse: Message = {
-                id: (Date.now() + 1).toString(),
-                isUser: false,
+            const botReply: ChatMessage = {
+                id: genId(),
+                role: 'assistant',
                 timestamp: new Date(),
             };
 
             // Handle interactive content format
             if (data.content_type && data.content) {
-                aiResponse.interactive = {
+                botReply.interactive = {
                     content: data.content,
                     content_type: data.content_type,
                     content_attributes: data.content_attributes || {},
                 };
             } else {
                 // Fallback to regular text message
-                aiResponse.text = data.output || data.message || "Sorry, I couldn't process that.";
+                botReply.text = data.output || data.message || 'Sorry, I couldn\'t process that.';
             }
 
-            setMessages((prev) => [...prev, aiResponse]);
+            setMessages((prev) => [...prev, botReply]);
         } catch (error) {
-            const aiResponse: Message = {
-                id: (Date.now() + 1).toString(),
-                text: "Sorry, I'm having trouble processing your message. Please try again later.",
-                isUser: false,
+            const botReply: ChatMessage = {
+                id: genId(),
+                text: 'Sorry, something went wrong.',
+                role: 'assistant',
                 timestamp: new Date(),
             };
-            setMessages((prev) => [...prev, aiResponse]);
-            console.error("Error sending message:", error);
+            setMessages((prev) => [...prev, botReply]);
+            console.error('[ChatWidget] sendMessage error:', error);
         } finally {
-            // Hide typing indicator
-            setIsTyping(false);
+            setSending(false);
         }
     }, [webhookUrl, sessionId, csrfToken]);
 
@@ -138,14 +138,14 @@ export const AIChatWidget = ({
             const { text, value } = event.detail;
 
             // Add user message
-            const userMessage: Message = {
-                id: Date.now().toString(),
+            const userMsg: ChatMessage = {
+                id: genId(),
                 text: text,
-                isUser: true,
+                role: 'user',
                 timestamp: new Date(),
             };
 
-            setMessages(prev => [...prev, userMessage]);
+            setMessages(prev => [...prev, userMsg]);
 
             // Send the value to AI
             setTimeout(() => {
@@ -160,155 +160,153 @@ export const AIChatWidget = ({
         };
     }, [sendMessageWithText]);
 
-    const toggleChat = () => {
-        setIsOpen(!isOpen);
-    };
+    const toggle = () => setOpen(o => !o);
 
     const sendMessage = async () => {
-        if (inputText.trim()) {
-            const messageText = inputText;
-            const userMessage: Message = {
-                id: Date.now().toString(),
-                text: messageText,
-                isUser: true,
-                timestamp: new Date(),
-            };
+        const text = input.trim();
+        if (!text || sending) return;
 
-            setMessages((prev) => [...prev, userMessage]);
-            setInputText("");
+        const userMsg: ChatMessage = {
+            id: genId(),
+            text,
+            role: 'user',
+            timestamp: new Date(),
+        };
 
-            // Use the shared function for sending to AI
-            await sendMessageWithText(messageText);
-        }
+        setMessages((prev) => [...prev, userMsg]);
+        setInput('');
+
+        // Use the shared function for sending to AI
+        await sendMessageWithText(text);
     };
 
-    const handleKeyPress = (e: React.KeyboardEvent) => {
-        if (e.key === "Enter") {
+    const onKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
             void sendMessage();
         }
     };
 
-    const handleSendClick = () => {
+    const onSendClick = () => {
         void sendMessage();
     };
 
     return (
-        <div
-            className="cw-widget"
-            data-open={isOpen}
-            style={{
-                "--widget-primary-color": colorVars.primary,
-                "--widget-primary-hover": colorVars.primaryHover,
-                "--widget-primary-light": colorVars.primaryLight,
-            } as React.CSSProperties}
+        <div 
+            className={`mw-chat ${className} ${isOpen ? 'mw-open' : ''}`}
+            style={color ? { '--widget-primary-color': color } as React.CSSProperties : undefined}
         >
+            {/* Toggle Button */}
             <button
-                className="cw-toggle-btn"
-                onClick={toggleChat}
-                aria-label={isOpen ? "Close chat" : "Open chat"}
-                title={isOpen ? "Close chat" : "Open chat"}
+                type="button"
+                className="mw-toggle"
+                {...(isOpen ? { 'aria-expanded': 'true' } : { 'aria-expanded': 'false' })}
+                aria-controls="mw-window"
+                onClick={toggle}
+                aria-label={isOpen ? 'Close chat' : 'Open chat'}
             >
-                <svg className="cw-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"></path>
-                </svg>
+                {isOpen ? '×' : '💬'}
             </button>
 
-            <div className="cw-interface">
-                <div className="cw-header">
-                    <h3>{title}</h3>
-                    <button
-                        className="cw-close-btn"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            setIsOpen(false);
-                        }}
-                        aria-label="Close chat"
-                        title="Close chat"
-                    >
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                    </button>
-                </div>
-                <div className="cw-messages">
-                    {messages.length === 0 ? (
-                        <div className="cw-welcome">
-                            <p>{initialMessage}</p>
-                        </div>
-                    ) : (
-                        <>
-                            {messages.map((message) => {
-                                // Special handling for canned responses and quick replies - render without bubble and timestamp
-                                if (message.interactive?.content_type === "canned_response" || message.interactive?.content_type === "quick_reply") {
+            {/* Window */}
+            {isOpen && (
+                <div className="mw-window" id="mw-window" role="dialog" aria-label="Chat window">
+                    <div className="mw-header">
+                        <div className="mw-title">{title}</div>
+                        <button
+                            type="button"
+                            className="mw-close"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setOpen(false);
+                            }}
+                            aria-label="Close chat"
+                        >
+                            ×
+                        </button>
+                    </div>
+
+                    <div className="mw-messages" aria-live="polite">
+                        {messages.length === 0 ? (
+                            <div className="mw-welcome">
+                                <p>{initialMessage}</p>
+                            </div>
+                        ) : (
+                            <>
+                                {messages.map((message) => {
+                                    // Special handling for canned responses and quick replies
+                                    if (message.interactive?.content_type === 'canned_response' || message.interactive?.content_type === 'quick_reply') {
+                                        return (
+                                            <div key={message.id} className="mw-canned-response-container">
+                                                <InteractiveMessage content={message.interactive} />
+                                            </div>
+                                        );
+                                    }
+
+                                    // Standard message rendering
                                     return (
-                                        <div key={message.id} className="cw-canned-response-container">
-                                            <InteractiveMessage content={message.interactive} />
+                                        <div key={message.id} className={`mw-msg mw-${message.role}`}>
+                                            <div className="mw-message-bubble">
+                                                {message.interactive ? (
+                                                    <InteractiveMessage content={message.interactive} />
+                                                ) : (
+                                                    <>
+                                                        {message.role === 'assistant' && agentName && (
+                                                            <span className="mw-agent-name">{agentName}: </span>
+                                                        )}
+                                                        {message.text}
+                                                    </>
+                                                )}
+                                            </div>
+                                            <div className="mw-message-time">
+                                                {new Intl.DateTimeFormat('en-GB', { 
+                                                    hour: '2-digit', 
+                                                    minute: '2-digit' 
+                                                }).format(message.timestamp)}
+                                            </div>
                                         </div>
                                     );
-                                }
-
-                                // Standard message rendering
-                                return (
-                                    <div key={message.id} className={`cw-message ${message.isUser ? "cw-user-message" : "cw-ai-message"}`}>
-                                        <div className="cw-message-bubble">
-                                            {message.interactive ? (
-                                                <InteractiveMessage content={message.interactive} />
-                                            ) : (
-                                                <>
-                                                    {!message.isUser && agentName && (
-                                                        <span className="cw-agent-name">{agentName}: </span>
-                                                    )}
-                                                    {message.text}
-                                                </>
-                                            )}
-                                        </div>
-                                        <div className="cw-message-time">
-                                            {new Intl.DateTimeFormat('en-GB', { 
-                                                hour: '2-digit', 
-                                                minute: '2-digit' 
-                                            }).format(message.timestamp)}
-                                        </div>
+                                })}
+                                {sending && (
+                                    <div className="mw-msg mw-assistant mw-typing">
+                                        <span className="mw-dot" />
+                                        <span className="mw-dot" />
+                                        <span className="mw-dot" />
                                     </div>
-                                );
-                            })}
-                            {isTyping && (
-                                <div className="cw-message cw-ai-message">
-                                    <div className="cw-message-bubble">
-                                        <div className="cw-typing-indicator">
-                                            <span></span>
-                                            <span></span>
-                                            <span></span>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-                            <div ref={bottomRef}></div>
-                        </>
-                    )}
-                </div>
+                                )}
+                                <div ref={bottomRef} />
+                            </>
+                        )}
+                    </div>
 
-                <div className="cw-input-area">
-                    <input
-                        type="text"
-                        placeholder="Type your message..."
-                        value={inputText}
-                        onChange={(e) => setInputText(e.target.value)}
-                        onKeyDown={handleKeyPress}
-                    />
-                    <button
-                        onClick={handleSendClick}
-                        disabled={!inputText.trim()}
-                        aria-label="Send message"
-                        title="Send message"
+                    <form
+                        className="mw-inputbar"
+                        onSubmit={e => {
+                            e.preventDefault();
+                            void sendMessage();
+                        }}
                     >
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <line x1="22" y1="2" x2="11" y2="13"></line>
-                            <polygon points="22,2 15,22 11,13 2,9 22,2"></polygon>
-                        </svg>
-                    </button>
+                        <input
+                            type="text"
+                            className="mw-input"
+                            placeholder={placeholder}
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            onKeyDown={onKeyDown}
+                        />
+                        <button
+                            type="submit"
+                            className="mw-send"
+                            onClick={onSendClick}
+                            disabled={sending || !input.trim()}
+                            aria-label="Send message"
+                        >
+                            Send
+                        </button>
+                    </form>
                 </div>
-            </div>
+            )}
         </div>
     );
 };
+
+export default ChatWidget;

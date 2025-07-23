@@ -1,7 +1,7 @@
-export { AIChatWidget as ChatWidget } from "./ChatWidget/ChatWidget";
+export { ChatWidget } from "./ChatWidget/ChatWidget";
 export type { 
     ChatWidgetProps,
-    Message as ChatMessage 
+    ChatMessage 
 } from "./ChatWidget/ChatWidget";
 export type { 
     InteractiveContent, 

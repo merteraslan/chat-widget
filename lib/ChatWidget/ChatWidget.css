@@ -1,4 +1,4 @@
-.cw-widget {
+.mw-chat {
     position: fixed;
     overflow: hidden;
     width: 60px;
@@ -12,14 +12,14 @@
     transition-delay: 0.15s;
 }
 
-.cw-widget[data-open="true"] {
+.mw-chat.mw-open {
     width: 350px;
     height: 500px;
     border-radius: 16px;
 }
 
 /* Chat Toggle Button/Container */
-.cw-toggle-btn {
+.mw-toggle {
     position: relative;
     width: 60px;
     height: 60px;
@@ -36,29 +36,22 @@
     overflow: hidden;
     color: white;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    font-size: 24px;
 }
 
-.cw-widget[data-open="true"] .cw-toggle-btn {
+.mw-chat.mw-open .mw-toggle {
     transform: scale(0) rotate(180deg);
     opacity: 0;
     transition-delay: 0s;
 }
 
-/* Chat Icons Container */
-.cw-icon {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    transition: transform 0.3s ease;
-}
-
-.cw-toggle-btn:hover .cw-icon {
-    transform: translate(-50%, -50%) scale(1.1);
+/* Chat Icons Container - Remove old icon styles */
+.mw-toggle:hover {
+    transform: scale(1.1);
 }
 
 /* Chat Interface */
-.cw-interface {
+.mw-window {
     position: absolute;
     top: 0;
     left: 0;
@@ -73,28 +66,28 @@
 }
 
 /* Show interface when expanded */
-.cw-widget[data-open="true"] .cw-header h3 {
+.mw-chat.mw-open .mw-header h3 {
     opacity: 1;
     transition-delay: 0.35s;
 }
 
-.cw-widget[data-open="true"] .cw-close-btn {
+.mw-chat.mw-open .mw-close {
     opacity: 1;
     transition-delay: 0.35s;
 }
 
-.cw-widget[data-open="true"] .cw-messages {
+.mw-chat.mw-open .mw-messages {
     opacity: 1;
     transition-delay: 0.35s;
 }
 
-.cw-widget[data-open="true"] .cw-welcome {
+.mw-chat.mw-open .mw-welcome {
     opacity: 1;
     transition-delay: 0.35s;
 }
 
 /* Chat Header */
-.cw-header {
+.mw-header {
     background: var(--widget-primary-color, #242424);
     color: white;
     padding: 16px 20px;
@@ -104,7 +97,7 @@
     flex-shrink: 0;
 }
 
-.cw-header h3 {
+.mw-header .mw-title {
     margin: 0;
     opacity: 0;
     font-size: 16px;
@@ -113,7 +106,7 @@
     transition-delay: 0s;
 }
 
-.cw-close-btn {
+.mw-close {
     background: none;
     border: none;
     color: white;
@@ -123,14 +116,15 @@
     border-radius: 4px;
     transition: opacity 0.25s ease-out;
     transition-delay: 0s;
+    font-size: 18px;
 }
 
-.cw-close-btn:hover {
+.mw-close:hover {
     background-color: rgba(255, 255, 255, 0.15);
 }
 
 /* Chat Messages */
-.cw-messages {
+.mw-messages {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
@@ -144,7 +138,7 @@
     opacity: 0;
 }
 
-.cw-welcome {
+.mw-welcome {
     text-align: center;
     color: #666;
     padding: 20px;
@@ -153,13 +147,13 @@
     transition-delay: 0s;
 }
 
-.cw-welcome p {
+.mw-welcome p {
     margin: 0;
     font-size: 14px;
     line-height: 1.4;
 }
 
-.cw-message {
+.mw-msg {
     display: flex;
     flex-direction: column;
     animation: bubblePop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
@@ -179,15 +173,15 @@
     }
 }
 
-.cw-user-message {
+.mw-user {
     align-items: flex-end;
 }
 
-.cw-ai-message {
+.mw-assistant {
     align-items: flex-start;
 }
 
-.cw-message-bubble {
+.mw-message-bubble {
     max-width: 80%;
     padding: 10px 14px;
     border-radius: 18px;
@@ -197,13 +191,13 @@
     box-sizing: border-box;
 }
 
-.cw-user-message .cw-message-bubble {
+.mw-user .mw-message-bubble {
     background: var(--widget-primary-color, #242424);
     color: white;
     border-bottom-right-radius: 6px;
 }
 
-.cw-ai-message .cw-message-bubble {
+.mw-assistant .mw-message-bubble {
     background: white;
     color: #333;
     border: 1px solid #e1e5e9;
@@ -211,12 +205,12 @@
 }
 
 /* Agent Name Styling */
-.cw-agent-name {
+.mw-agent-name {
     font-weight: 700;
     color: var(--widget-primary-color, #242424);
 }
 
-.cw-message-time {
+.mw-message-time {
     font-size: 11px;
     color: #999;
     margin-top: 4px;
@@ -224,7 +218,7 @@
 }
 
 /* Chat Input */
-.cw-input-area {
+.mw-inputbar {
     padding: 16px 20px;
     background: white;
     border-top: 1px solid #e1e5e9;
@@ -234,7 +228,7 @@
     flex-shrink: 0;
 }
 
-.cw-input-area input {
+.mw-input {
     flex: 1;
     padding: 12px 16px;
     border: 1px solid #e1e5e9;
@@ -244,96 +238,95 @@
     transition: border-color 0.25s ease-out;
 }
 
-.cw-input-area input:focus {
+.mw-input:focus {
     border-color: var(--widget-primary-color, #667eea);
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
-.cw-input-area button {
-    width: 40px;
-    height: 40px;
+.mw-send {
+    padding: 10px 16px;
     background: var(--widget-primary-color, #242424);
     border: none;
-    border-radius: 50%;
+    border-radius: 20px;
     color: white;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 14px;
+    font-weight: 500;
 }
 
-.cw-input-area button:hover:not(:disabled) {
+.mw-send:hover:not(:disabled) {
     opacity: 0.9;
     transform: scale(1.05);
 }
 
-.cw-input-area button:disabled {
+.mw-send:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
 
-.cw-input-area button:disabled:hover {
+.mw-send:disabled:hover {
     transform: none;
 }
 
 /* Responsive Design */
 @media (max-width: 480px) {
-    .cw-widget {
+    .mw-chat {
         bottom: 10px;
         right: 10px;
     }
 
-    .cw-widget[data-open="true"] {
+    .mw-chat.mw-open {
         width: calc(100vw - 40px);
         height: calc(100vh - 140px);
     }
 }
 
 /* Scrollbar Styling */
-.cw-messages::-webkit-scrollbar {
+.mw-messages::-webkit-scrollbar {
     width: 4px;
 }
 
-.cw-messages::-webkit-scrollbar-track {
+.mw-messages::-webkit-scrollbar-track {
     background: transparent;
 }
 
-.cw-messages::-webkit-scrollbar-thumb {
+.mw-messages::-webkit-scrollbar-thumb {
     background: #cbd5e0;
     border-radius: 4px;
 }
 
-.cw-messages::-webkit-scrollbar-thumb:hover {
+.mw-messages::-webkit-scrollbar-thumb:hover {
     background: #a0aec0;
 }
 
 /* Typing Indicator */
-.cw-typing-indicator {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 4px 0;
+.mw-typing {
+    align-items: flex-start;
 }
 
-.cw-typing-indicator span {
+.mw-typing .mw-dot {
     width: 6px;
     height: 6px;
     border-radius: 50%;
     background-color: #999;
     display: inline-block;
-    animation: cwTyping 1.4s infinite ease-in-out;
+    animation: mwTyping 1.4s infinite ease-in-out;
+    margin-right: 4px;
 }
 
-.cw-typing-indicator span:nth-child(1) {
+.mw-typing .mw-dot:nth-child(1) {
     animation-delay: -0.32s;
 }
 
-.cw-typing-indicator span:nth-child(2) {
+.mw-typing .mw-dot:nth-child(2) {
     animation-delay: -0.16s;
 }
 
-@keyframes cwTyping {
+@keyframes mwTyping {
     0%,
     80%,
     100% {
@@ -348,7 +341,7 @@
 
 /* Interactive Messages Styles */
 /* Canned Response Container */
-.cw-canned-response-container {
+.mw-canned-response-container {
     margin: 16px 0;
     padding: 0 8px;
 }
@@ -448,7 +441,7 @@
 }
 
 /* Interactive message bubble adjustments */
-.ai-message .message-bubble:has(.interactive-articles) {
+.mw-assistant .mw-message-bubble:has(.interactive-articles) {
     padding: 16px;
     max-width: 90%;
     background: white;
@@ -737,7 +730,7 @@
 }
 
 /* Form message bubble adjustments */
-.ai-message .message-bubble:has(.interactive-form) {
+.mw-assistant .mw-message-bubble:has(.interactive-form) {
     padding: 16px;
     max-width: 90%;
     background: white;
@@ -920,7 +913,7 @@
 }
 
 /* Card message bubble adjustments */
-.ai-message .message-bubble:has(.interactive-cards) {
+.mw-assistant .mw-message-bubble:has(.interactive-cards) {
     padding: 16px;
     max-width: 100%;
     background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
@@ -1063,7 +1056,7 @@
 }
 
 /* Canned Response message bubble adjustments */
-.ai-message .message-bubble:has(.interactive-canned-responses) {
+.mw-assistant .mw-message-bubble:has(.interactive-canned-responses) {
     padding: 20px;
     max-width: 100%;
     background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
@@ -1195,7 +1188,7 @@
         right: 8px;
     }
     
-    .ai-message .message-bubble:has(.interactive-cards) {
+    .mw-assistant .mw-message-bubble:has(.interactive-cards) {
         padding: 16px;
     }
     
@@ -1225,7 +1218,7 @@
         font-size: 13px;
     }
     
-    .ai-message .message-bubble:has(.interactive-canned-responses) {
+    .mw-assistant .mw-message-bubble:has(.interactive-canned-responses) {
         padding: 16px;
     }
 }

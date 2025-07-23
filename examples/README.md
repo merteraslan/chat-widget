@@ -36,7 +36,6 @@ function App() {
       webhookUrl="https://your-api.com/chat"
       title="AI Assistant"
       initialMessage="Hello! How can I help you today?"
-      color="#3b82f6"
       agentName="Support Bot"
     />
   );
@@ -52,7 +51,6 @@ function App() {
   webhookUrl="https://hook.make.com/your-webhook-id"
   title="Make.com Assistant"
   initialMessage="Connected to Make.com automation!"
-  color="#6366f1"
   agentName="Automation Bot"
 />
 ```
@@ -64,7 +62,6 @@ function App() {
   webhookUrl="https://hooks.zapier.com/hooks/catch/your-webhook-id"
   title="Zapier Assistant"
   initialMessage="Connected to Zapier workflows!"
-  color="#ff6900"
   agentName="Workflow Bot"
 />
 ```
@@ -76,7 +73,6 @@ function App() {
   webhookUrl="https://your-n8n-instance.com/webhook/your-webhook-id"
   title="n8n Assistant"
   initialMessage="Connected to n8n workflow automation!"
-  color="#ea4b4b"
   agentName="Workflow Assistant"
 />
 ```
@@ -98,7 +94,8 @@ And respond with one of these formats:
 
 ```json
 {
-  "output": "AI response message"
+  "output": "AI response message",
+  "message": "Alternative field for response text"
 }
 ```
 
@@ -106,15 +103,32 @@ And respond with one of these formats:
 
 ```json
 {
-  "content": "articles",
-  "content_type": "article",
-  "articles": [
-    {
-      "title": "Getting Started Guide", 
-      "description": "Learn how to use our platform",
-      "url": "https://example.com/guide"
-    }
-  ]
+  "content": "Select from these helpful articles:",
+  "content_type": "article", 
+  "content_attributes": {
+    "articles": [
+      {
+        "title": "Getting Started Guide", 
+        "description": "Learn how to use our platform",
+        "url": "https://example.com/guide"
+      }
+    ]
+  }
+}
+```
+
+### Canned Response
+
+```json
+{
+  "content": "How can I help you today?",
+  "content_type": "canned_response",
+  "content_attributes": {
+    "responses": [
+      { "text": "I need help with billing", "value": "billing_help" },
+      { "text": "Technical support", "value": "tech_support" }
+    ]
+  }
 }
 ```
 

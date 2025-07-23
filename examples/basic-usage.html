@@ -80,7 +80,6 @@ function App() {
         webhookUrl="https://your-api.com/chat"
         title="AI Assistant"
         initialMessage="Hello! How can I help you today?"
-        color="#3b82f6"
         agentName="Support Bot"
       /&gt;
     &lt;/&gt;
@@ -99,7 +98,6 @@ function App() {
     webhookUrl: 'https://your-api.com/chat',
     title: 'AI Assistant',
     initialMessage: 'Hello! How can I help you today?',
-    color: '#3b82f6',
     agentName: 'Support Bot'
   });
   
@@ -115,7 +113,9 @@ function App() {
             <li><strong>initialMessage</strong> (optional): First message displayed</li>
             <li><strong>sessionId</strong> (optional): Session identifier</li>
             <li><strong>csrfToken</strong> (optional): CSRF protection token</li>
-            <li><strong>color</strong> (optional): Primary color theme (default: "#242424")</li>
+            <li><strong>placeholder</strong> (optional): Input placeholder text (default: "Type a message…")</li>
+            <li><strong>openByDefault</strong> (optional): Whether widget starts open (default: false)</li>
+            <li><strong>className</strong> (optional): Additional CSS classes</li>
             <li><strong>agentName</strong> (optional): Display name for AI agent</li>
         </ul>
         
@@ -124,20 +124,35 @@ function App() {
         <div class="code-example">
 // Simple text response
 {
-  "output": "Thank you for your message! How can I assist you today?"
+  "output": "Thank you for your message! How can I assist you today?",
+  "message": "Alternative text field"
 }
 
 // Interactive message response
 {
-  "content": "articles",
+  "content": "Select from these helpful articles:",
   "content_type": "article",
-  "articles": [
-    {
-      "title": "Getting Started Guide",
-      "description": "Learn how to use our platform",
-      "url": "https://example.com/guide"
-    }
-  ]
+  "content_attributes": {
+    "articles": [
+      {
+        "title": "Getting Started Guide",
+        "description": "Learn how to use our platform",
+        "url": "https://example.com/guide"
+      }
+    ]
+  }
+}
+
+// Canned responses
+{
+  "content": "How can I help you today?",
+  "content_type": "canned_response",
+  "content_attributes": {
+    "responses": [
+      { "text": "I need help with billing", "value": "billing_help" },
+      { "text": "Technical support", "value": "tech_support" }
+    ]
+  }
 }
         </div>
     </div>

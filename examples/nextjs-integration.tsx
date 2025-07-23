@@ -14,8 +14,8 @@ export default function HomePage() {
         webhookUrl="/api/chat" // Using Next.js API route
         title="Next.js Assistant"
         initialMessage="Hello! I'm integrated with Next.js."
-        color="#000000"
         agentName="Next.js Bot"
+        color="#000000"
       />
     </div>
   );
