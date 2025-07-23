@@ -1,6 +1,6 @@
 {
   "name": "@merteraslan/chat-widget",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "A modern Chat widget using webhooks.",
   "type": "module",
   "main": "dist/chat-widget.umd.js",
