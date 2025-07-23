@@ -143,6 +143,13 @@ jobs:
           
           mv CHANGELOG.md.new CHANGELOG.md
           
+      - name: Create release notes
+        run: |
+          NEW_VERSION="${{ steps.version.outputs.NEW_VERSION }}"
+          
+          # Extract changelog section for this version
+          awk "/## \[$NEW_VERSION\]/,/## \[.*\]/{if(/## \[.*\]/ && !/## \[$NEW_VERSION\]/) exit; print}" CHANGELOG.md | head -n -1 > release-notes.md
+          
       - name: Commit version bump
         run: |
           git add package.json package-lock.json CHANGELOG.md
@@ -150,20 +157,15 @@ jobs:
           git push
           
       - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.NEW_VERSION }}
+          name: Release v${{ steps.version.outputs.NEW_VERSION }}
+          body_path: release-notes.md
+          draft: false
+          prerelease: ${{ github.event.inputs.version_type == 'prerelease' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          NEW_VERSION="${{ steps.version.outputs.NEW_VERSION }}"
-          
-          # Extract changelog section for this version
-          CHANGELOG_SECTION=$(awk "/## \[$NEW_VERSION\]/,/## \[.*\]/{if(/## \[.*\]/ && !/## \[$NEW_VERSION\]/) exit; print}" CHANGELOG.md | head -n -1)
-          
-          # Create the release
-          gh release create "v$NEW_VERSION" \
-            --title "Release v$NEW_VERSION" \
-            --notes "$CHANGELOG_SECTION" \
-            --draft=false \
-            --prerelease=${{ github.event.inputs.version_type == 'prerelease' }}
             
       - name: Create summary
         run: |

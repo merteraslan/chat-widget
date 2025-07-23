@@ -27,9 +27,22 @@ jobs:
       - name: Install dependencies
         run: npm ci
         
+      - name: Verify NPM token is available
+        run: |
+          if [ -z "${{ secrets.NPM_TOKEN }}" ]; then
+            echo "❌ NPM_TOKEN secret is not set up"
+            echo "Please add NPM_TOKEN to repository secrets:"
+            echo "1. Go to npmjs.com → Profile → Access Tokens"
+            echo "2. Generate a new Automation token"
+            echo "3. Add it as NPM_TOKEN in GitHub repo secrets"
+            exit 1
+          else
+            echo "✅ NPM_TOKEN is configured"
+          fi
+          
       - name: Verify package.json version matches release tag
         run: |
-          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          PACKAGE_VERSION=$(node -e "const fs = require('fs'); const pkg = JSON.parse(fs.readFileSync('./package.json', 'utf8')); console.log(pkg.version);")
           RELEASE_TAG="${{ github.event.release.tag_name }}"
           # Remove 'v' prefix if present
           RELEASE_VERSION=${RELEASE_TAG#v}
@@ -47,8 +60,8 @@ jobs:
           
       - name: Check if version already exists on npm
         run: |
-          PACKAGE_VERSION=$(node -p "require('./package.json').version")
-          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          PACKAGE_VERSION=$(node -e "const fs = require('fs'); const pkg = JSON.parse(fs.readFileSync('./package.json', 'utf8')); console.log(pkg.version);")
+          PACKAGE_NAME=$(node -e "const fs = require('fs'); const pkg = JSON.parse(fs.readFileSync('./package.json', 'utf8')); console.log(pkg.name);")
           
           if npm view "$PACKAGE_NAME@$PACKAGE_VERSION" version 2>/dev/null; then
             echo "❌ Version $PACKAGE_VERSION already exists on npm"
@@ -98,8 +111,8 @@ jobs:
           
       - name: Verify publication
         run: |
-          PACKAGE_VERSION=$(node -p "require('./package.json').version")
-          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          PACKAGE_VERSION=$(node -e "const fs = require('fs'); const pkg = JSON.parse(fs.readFileSync('./package.json', 'utf8')); console.log(pkg.version);")
+          PACKAGE_NAME=$(node -e "const fs = require('fs'); const pkg = JSON.parse(fs.readFileSync('./package.json', 'utf8')); console.log(pkg.name);")
           
           echo "⏳ Waiting for package to be available on npm..."
           sleep 10
@@ -113,8 +126,8 @@ jobs:
           
       - name: Create success summary
         run: |
-          PACKAGE_VERSION=$(node -p "require('./package.json').version")
-          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          PACKAGE_VERSION=$(node -e "const fs = require('fs'); const pkg = JSON.parse(fs.readFileSync('./package.json', 'utf8')); console.log(pkg.version);")
+          PACKAGE_NAME=$(node -e "const fs = require('fs'); const pkg = JSON.parse(fs.readFileSync('./package.json', 'utf8')); console.log(pkg.name);")
           
           echo "## 🎉 Package Published Successfully!" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
