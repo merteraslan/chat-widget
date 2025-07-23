@@ -1,0 +1,149 @@
+name: Publish to NPM
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  validate-and-publish:
+    name: Validate & Publish Package
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      id-token: write  # Required for npm provenance
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Verify package.json version matches release tag
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          RELEASE_TAG="${{ github.event.release.tag_name }}"
+          # Remove 'v' prefix if present
+          RELEASE_VERSION=${RELEASE_TAG#v}
+          
+          echo "📦 Package version: $PACKAGE_VERSION"
+          echo "🏷️  Release version: $RELEASE_VERSION"
+          
+          if [ "$PACKAGE_VERSION" != "$RELEASE_VERSION" ]; then
+            echo "❌ Version mismatch: package.json ($PACKAGE_VERSION) != release tag ($RELEASE_VERSION)"
+            echo "Please update package.json version to match the release tag"
+            exit 1
+          else
+            echo "✅ Version match confirmed"
+          fi
+          
+      - name: Check if version already exists on npm
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          
+          if npm view "$PACKAGE_NAME@$PACKAGE_VERSION" version 2>/dev/null; then
+            echo "❌ Version $PACKAGE_VERSION already exists on npm"
+            echo "Please increment the version number in package.json"
+            exit 1
+          else
+            echo "✅ Version $PACKAGE_VERSION is available for publishing"
+          fi
+          
+      - name: Run linting
+        run: npm run lint
+        
+      - name: Run tests
+        run: npm run test:run
+        
+      - name: Run security audit
+        run: npm audit --audit-level=moderate
+        
+      - name: Build project
+        run: npm run build
+        
+      - name: Verify build output
+        run: |
+          echo "📁 Build output:"
+          ls -la dist/
+          
+          # Check if all required files exist
+          required_files=("chat-widget.es.js" "chat-widget.umd.js" "chat-widget.es.d.ts" "index.css")
+          for file in "${required_files[@]}"; do
+            if [ ! -f "dist/$file" ]; then
+              echo "❌ Required file missing: dist/$file"
+              exit 1
+            else
+              echo "✅ Found: dist/$file"
+            fi
+          done
+          
+      - name: Verify package contents (dry run)
+        run: |
+          echo "📦 Package contents preview:"
+          npm pack --dry-run
+          
+      - name: Publish to NPM with provenance
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          
+      - name: Verify publication
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          
+          echo "⏳ Waiting for package to be available on npm..."
+          sleep 10
+          
+          if npm view "$PACKAGE_NAME@$PACKAGE_VERSION" version; then
+            echo "✅ Package successfully published and available on npm"
+          else
+            echo "❌ Package publication verification failed"
+            exit 1
+          fi
+          
+      - name: Create success summary
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          
+          echo "## 🎉 Package Published Successfully!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Package:** \`$PACKAGE_NAME@$PACKAGE_VERSION\`" >> $GITHUB_STEP_SUMMARY
+          echo "**npm URL:** https://www.npmjs.com/package/$PACKAGE_NAME" >> $GITHUB_STEP_SUMMARY
+          echo "**Install command:** \`npm install $PACKAGE_NAME\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Features" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Published with **provenance** for enhanced security" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ All tests passed" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Security audit passed" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Build verification completed" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Version validation confirmed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Usage" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "npm install $PACKAGE_NAME" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`jsx" >> $GITHUB_STEP_SUMMARY
+          echo "import { ChatWidget } from \"$PACKAGE_NAME\";" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "function App() {" >> $GITHUB_STEP_SUMMARY
+          echo "  return (" >> $GITHUB_STEP_SUMMARY
+          echo "    <ChatWidget" >> $GITHUB_STEP_SUMMARY
+          echo "      webhookUrl=\"https://your-api.com/chat\"" >> $GITHUB_STEP_SUMMARY
+          echo "      title=\"AI Assistant\"" >> $GITHUB_STEP_SUMMARY
+          echo "      color=\"#3b82f6\"" >> $GITHUB_STEP_SUMMARY
+          echo "    />" >> $GITHUB_STEP_SUMMARY
+          echo "  );" >> $GITHUB_STEP_SUMMARY
+          echo "}" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY

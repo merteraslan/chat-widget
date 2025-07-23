@@ -1,0 +1,152 @@
+name: Release Management
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Version increment type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+          - prerelease
+      prerelease_tag:
+        description: 'Prerelease tag (only for prerelease)'
+        required: false
+        default: 'beta'
+        type: string
+      custom_version:
+        description: 'Custom version (overrides version_type)'
+        required: false
+        type: string
+
+jobs:
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+      pull-requests: write
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Run tests
+        run: npm run test:run
+        
+      - name: Run linting
+        run: npm run lint
+        
+      - name: Build project
+        run: npm run build
+        
+      - name: Configure git
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+      - name: Determine new version
+        id: version
+        run: |
+          if [ -n "${{ github.event.inputs.custom_version }}" ]; then
+            NEW_VERSION="${{ github.event.inputs.custom_version }}"
+            echo "Using custom version: $NEW_VERSION"
+          else
+            if [ "${{ github.event.inputs.version_type }}" = "prerelease" ]; then
+              NEW_VERSION=$(npm version prerelease --preid="${{ github.event.inputs.prerelease_tag }}" --no-git-tag-version)
+            else
+              NEW_VERSION=$(npm version ${{ github.event.inputs.version_type }} --no-git-tag-version)
+            fi
+            # Remove 'v' prefix that npm version adds
+            NEW_VERSION=${NEW_VERSION#v}
+          fi
+          
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "New version will be: $NEW_VERSION"
+          
+      - name: Update package.json version
+        run: |
+          npm version ${{ steps.version.outputs.NEW_VERSION }} --no-git-tag-version
+          
+      - name: Update CHANGELOG.md
+        run: |
+          TODAY=$(date +%Y-%m-%d)
+          NEW_VERSION="${{ steps.version.outputs.NEW_VERSION }}"
+          
+          # Create new changelog entry
+          {
+            echo "# Changelog"
+            echo ""
+            echo "## [$NEW_VERSION] - $TODAY"
+            echo ""
+            echo "### Added"
+            echo "- New features and enhancements"
+            echo ""
+            echo "### Changed"
+            echo "- Improvements and updates"
+            echo ""
+            echo "### Fixed"
+            echo "- Bug fixes and issue resolutions"
+            echo ""
+            
+            # Add existing changelog content if it exists
+            if [ -f CHANGELOG.md ]; then
+              tail -n +2 CHANGELOG.md
+            fi
+          } > CHANGELOG.md.new
+          
+          mv CHANGELOG.md.new CHANGELOG.md
+          
+      - name: Commit version bump
+        run: |
+          git add package.json package-lock.json CHANGELOG.md
+          git commit -m "chore: bump version to ${{ steps.version.outputs.NEW_VERSION }}"
+          git push
+          
+      - name: Create GitHub release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NEW_VERSION="${{ steps.version.outputs.NEW_VERSION }}"
+          
+          # Extract changelog section for this version
+          CHANGELOG_SECTION=$(awk "/## \[$NEW_VERSION\]/,/## \[.*\]/{if(/## \[.*\]/ && !/## \[$NEW_VERSION\]/) exit; print}" CHANGELOG.md | head -n -1)
+          
+          # Create the release
+          gh release create "v$NEW_VERSION" \
+            --title "Release v$NEW_VERSION" \
+            --notes "$CHANGELOG_SECTION" \
+            --draft=false \
+            --prerelease=${{ github.event.inputs.version_type == 'prerelease' }}
+            
+      - name: Create summary
+        run: |
+          NEW_VERSION="${{ steps.version.outputs.NEW_VERSION }}"
+          echo "## 🚀 Release Created Successfully!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** \`v$NEW_VERSION\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Type:** \`${{ github.event.inputs.version_type }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "1. ✅ Version bumped in package.json" >> $GITHUB_STEP_SUMMARY
+          echo "2. ✅ CHANGELOG.md updated" >> $GITHUB_STEP_SUMMARY
+          echo "3. ✅ GitHub release created" >> $GITHUB_STEP_SUMMARY
+          echo "4. ⏳ NPM publishing will start automatically" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Release URL:** https://github.com/${{ github.repository }}/releases/tag/v$NEW_VERSION" >> $GITHUB_STEP_SUMMARY
