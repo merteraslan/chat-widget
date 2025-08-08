@@ -210,4 +210,4 @@ No breaking changes. New features:
 
 - **Bug Reports**: [GitHub Issues](https://github.com/merteraslan/chat-widget/issues)
 - **Feature Requests**: [GitHub Discussions](https://github.com/merteraslan/chat-widget/discussions)
-- **Pull Requests**: Welcome! Please read [Contributing Guidelines](./docs/contributing.md)
+- **Pull Requests**: Welcome! Please read [Contributing Guidelines](./CONTRIBUTING.md)

@@ -1,11 +1,10 @@
-import React from "react";
 import type { InteractiveMessageProps } from "./types";
 import { ArticleMessage } from "./ArticleMessage";
 import { FormMessage } from "./FormMessage";
 import { CardMessage } from "./CardMessage";
 import { CannedResponseMessage } from "./CannedResponseMessage";
 
-export const InteractiveMessage: React.FC<InteractiveMessageProps> = ({ content }) => {
+export function InteractiveMessage({ content }: InteractiveMessageProps) {
     switch (content.content_type) {
         case "article":
             return <ArticleMessage content={content} />;
@@ -32,4 +31,4 @@ export const InteractiveMessage: React.FC<InteractiveMessageProps> = ({ content 
                 </div>
             );
     }
-}; 
+}

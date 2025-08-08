@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import type { InteractiveContent, FormField } from "./types";
 
 interface FormMessageProps {
     content: InteractiveContent;
 }
 
-export const FormMessage: React.FC<FormMessageProps> = ({ content }) => {
+export function FormMessage({ content }: FormMessageProps) {
     const [formValues, setFormValues] = useState<Record<string, string | boolean>>({});
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -253,4 +253,4 @@ export const FormMessage: React.FC<FormMessageProps> = ({ content }) => {
             </form>
         </div>
     );
-}; 
+}

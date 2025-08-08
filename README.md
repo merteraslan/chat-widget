@@ -189,9 +189,56 @@ For complete design control, the source code is intentionally compact and readab
 ## Development
 
 ```bash
-pnpm install
-pnpm dev
+npm install
+npm run dev
 ```
+
+### CDN usage (no build tools)
+
+Option A: Native ESM with an import map
+
+```html
+<link rel="stylesheet" href="https://unpkg.com/@merteraslan/chat-widget@latest/dist/style.css" />
+
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@18",
+    "react-dom": "https://esm.sh/react-dom@18",
+    "react-dom/client": "https://esm.sh/react-dom@18/client",
+    "react/jsx-runtime": "https://esm.sh/react@18/jsx-runtime"
+  }
+}
+</script>
+
+<script type="module">
+  import * as ReactDOMClient from 'react-dom/client';
+  // Provide ReactDOM global for the widget's mount helper
+  window.ReactDOM = ReactDOMClient;
+
+  import { mountChatWidget } from 'https://unpkg.com/@merteraslan/chat-widget@latest/dist/chat-widget.es.js';
+  mountChatWidget(document.body, { webhookUrl: '/api/chat' });
+</script>
+```
+
+Option B: UMD + globals
+
+```html
+<link rel="stylesheet" href="https://unpkg.com/@merteraslan/chat-widget@latest/dist/style.css" />
+
+<!-- React globals -->
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+<!-- Widget UMD build exposes window.ChatWidget -->
+<script src="https://unpkg.com/@merteraslan/chat-widget@latest/dist/chat-widget.umd.js"></script>
+<script>
+  const { mountChatWidget } = window.ChatWidget;
+  mountChatWidget(document.body, { webhookUrl: '/api/chat' });
+</script>
+```
+
+More examples in `examples/`.
 
 ## License
 

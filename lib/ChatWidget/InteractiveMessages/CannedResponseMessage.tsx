@@ -1,11 +1,10 @@
-import React from "react";
 import type { InteractiveContent, CannedResponseItem } from "./types";
 
 interface CannedResponseMessageProps {
     content: InteractiveContent;
 }
 
-export const CannedResponseMessage: React.FC<CannedResponseMessageProps> = ({ content }) => {
+export function CannedResponseMessage({ content }: CannedResponseMessageProps) {
     const responses = content.content_attributes?.responses;
 
     if (!responses || !responses.responses || responses.responses.length === 0) {
@@ -56,4 +55,4 @@ export const CannedResponseMessage: React.FC<CannedResponseMessageProps> = ({ co
             </div>
         </div>
     );
-}; 
+}

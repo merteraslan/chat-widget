@@ -20,28 +20,25 @@ Welcome to the comprehensive documentation for the Chat Widget - a modern, light
 
 ### Integration & Deployment
 
-- [**Integration Guide**](./integration.md) - Platform-specific integration guides
 - [**Webhook Configuration**](./webhook-configuration.md) - Backend setup and requirements
-- [**Styling & Theming**](./styling.md) - Customization and color schemes
+- See `examples/` in repo for Next.js and React integrations
 
 ### Troubleshooting & FAQ
 
 - [**FAQ**](./faq.md) - Common issues and solutions (CORS, CSP, SSR, etc.)
-- [**Troubleshooting**](./troubleshooting.md) - Debugging and problem resolution
-- [**Migration Guide**](./migration.md) - Upgrading between versions
 
 ### Development
 
-- [**Contributing**](./contributing.md) - How to contribute to the project
+- [**Contributing**](../CONTRIBUTING.md) - How to contribute to the project
 - [**Changelog**](../CHANGELOG.md) - Version history and changes
-- [**Examples**](./examples/) - Complete implementation examples
+- [**Examples**](../examples/) - Complete implementation examples
 
 ## 🚀 Quick Links
 
 - **[Get Started](./installation.md)** - Install and configure the widget
 - **[Message Types](./message-schema.md)** - All supported interactive message formats
 - **[FAQ](./faq.md)** - Solutions to common issues
-- **[Examples](./examples/)** - Working code examples
+- **[Examples](../examples/)** - Working code examples
 
 ## 📦 Package Information
 

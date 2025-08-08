@@ -132,7 +132,7 @@ jobs:
           ls -la dist/
           
           # Check if all required files exist
-          required_files=("chat-widget.es.js" "chat-widget.umd.js" "chat-widget.es.d.ts" "index.css")
+          required_files=("chat-widget.es.js" "chat-widget.umd.js" "index.d.ts" "style.css")
           for file in "${required_files[@]}"; do
             if [ ! -f "dist/$file" ]; then
               echo "❌ Required file missing: dist/$file"

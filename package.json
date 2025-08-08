@@ -5,11 +5,13 @@
   "type": "module",
   "main": "dist/chat-widget.umd.js",
   "module": "dist/chat-widget.es.js",
+  "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/chat-widget.es.js",
       "require": "./dist/chat-widget.umd.js"
     },
@@ -27,10 +29,15 @@
     "type": "github",
     "url": "https://github.com/sponsors/merteraslan"
   },
+  "engines": {
+    "node": ">=18"
+  },
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
   },
+  "unpkg": "dist/chat-widget.umd.js",
+  "jsdelivr": "dist/chat-widget.umd.js",
   "keywords": [
     "ai",
     "chat",
@@ -52,19 +59,18 @@
   ],
   "author": "Mert Eraslan <mertegithub@gmail.com>",
   "license": "MIT",
-  "sideEffects": false,
+  "sideEffects": [
+    "**/*.css",
+    "./dist/style.css"
+  ],
   "scripts": {
-    "dev": "vite",
+  "dev": "vite --open /examples/basic-usage.html",
     "prebuild": "rimraf dist",
-    "build": "npm run build:lib && npm run build:bundle",
-    "build:lib": "tsup",
-    "build:bundle": "vite build --mode bundle",
-    "build:types": "tsc -b ./tsconfig.lib.json",
-    "typecheck": "tsc --noEmit",
-    "typecheck:lib": "tsc -b ./tsconfig.lib.json --noEmit",
+  "build": "vite build",
+  "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "preview": "vite preview",
-    "prepublish": "npm run build",
+  "prepublishOnly": "npm run build",
     "publish:npm": "npm publish --access public",
     "pack:check": "npm pack --dry-run",
     "test": "vitest",
@@ -87,11 +93,13 @@
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.6.0",
+    "autoprefixer": "^10.4.21",
     "eslint": "^9.30.1",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.3.0",
     "jsdom": "^26.1.0",
+    "postcss": "^8.5.6",
     "rimraf": "^6.0.1",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.35.1",
@@ -101,15 +109,5 @@
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.2.4"
   },
-  "dependencies": {
-    "@radix-ui/react-label": "^2.1.7",
-    "@radix-ui/react-separator": "^1.1.7",
-    "@radix-ui/react-slot": "^1.2.3",
-    "@radix-ui/react-tabs": "^1.1.12",
-    "autoprefixer": "^10.4.21",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
-    "lucide-react": "^0.525.0",
-    "postcss": "^8.5.6"
-  }
+  "dependencies": {}
 }

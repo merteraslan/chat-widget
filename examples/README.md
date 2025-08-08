@@ -106,11 +106,11 @@ And respond with one of these formats:
   "content": "Select from these helpful articles:",
   "content_type": "article", 
   "content_attributes": {
-    "articles": [
+    "items": [
       {
         "title": "Getting Started Guide", 
         "description": "Learn how to use our platform",
-        "url": "https://example.com/guide"
+        "link": "https://example.com/guide"
       }
     ]
   }
@@ -124,14 +124,16 @@ And respond with one of these formats:
   "content": "How can I help you today?",
   "content_type": "canned_response",
   "content_attributes": {
-    "responses": [
-      { "text": "I need help with billing", "value": "billing_help" },
-      { "text": "Technical support", "value": "tech_support" }
-    ]
+    "responses": {
+      "responses": [
+        { "id": "billing", "text": "I need help with billing", "value": "billing_help" },
+        { "id": "technical", "text": "Technical support", "value": "tech_support" }
+      ]
+    }
   }
 }
 ```
 
 ## 📚 More Information
 
-For complete documentation, see the [docs directory](../docs/README.md).
+Note: When opening the HTML files directly, ensure the built CSS exists at `dist/style.css` (run `npm run build` first) or load CSS from the CDN as shown in `basic-usage.html`. For complete documentation, see the [docs directory](../docs/README.md).

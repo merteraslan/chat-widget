@@ -24,13 +24,21 @@ export default defineConfig(({ mode }) => ({
             fileName: (format) => `chat-widget.${format}.js`,
             formats: ["es", "umd"],
         },
-        rollupOptions: {
-            external: ["react", "react-dom", "react/jsx-runtime"],
+    rollupOptions: {
+        external: ["react", "react-dom", "react-dom/client", "react/jsx-runtime"],
             output: {
                 globals: {
                     react: "React",
                     "react-dom": "ReactDOM",
+            "react-dom/client": "ReactDOM",
                     "react/jsx-runtime": "jsxRuntime",
+                },
+                assetFileNames: (assetInfo) => {
+                    // Force CSS to the documented name
+                    if (assetInfo.name && assetInfo.name.endsWith('.css')) {
+                        return 'style.css';
+                    }
+                    return 'assets/[name][extname]';
                 },
             },
         },

@@ -89,19 +89,17 @@ function App() {
         
         <h3>🌐 Vanilla HTML Integration</h3>
         <div class="code-example">
-&lt;!-- Include via CDN --&gt;
+&lt;!-- Include via CDN (ESM) --&gt;
 &lt;script type="module"&gt;
-  import { ChatWidget } from 'https://unpkg.com/@merteraslan/chat-widget@latest/dist/chat-widget.es.js';
-  
-  // Mount the widget
-  const widget = new ChatWidget({
+  import { mountChatWidget } from 'https://unpkg.com/@merteraslan/chat-widget@latest/dist/chat-widget.es.js';
+  import 'https://unpkg.com/@merteraslan/chat-widget@latest/dist/style.css';
+
+  mountChatWidget(document.body, {
     webhookUrl: 'https://your-api.com/chat',
     title: 'AI Assistant',
     initialMessage: 'Hello! How can I help you today?',
     agentName: 'Support Bot'
   });
-  
-  widget.mount(document.body);
 &lt;/script&gt;
         </div>
         
@@ -133,11 +131,11 @@ function App() {
   "content": "Select from these helpful articles:",
   "content_type": "article",
   "content_attributes": {
-    "articles": [
+    "items": [
       {
         "title": "Getting Started Guide",
         "description": "Learn how to use our platform",
-        "url": "https://example.com/guide"
+        "link": "https://example.com/guide"
       }
     ]
   }
@@ -157,11 +155,9 @@ function App() {
         </div>
     </div>
     
-    <!-- Include the chat widget -->
-    <script type="module">
-        // This is a demo - replace with your actual implementation
-        console.log('Basic usage example loaded');
-        console.log('Replace this with actual widget integration');
-    </script>
+  <!-- Demo placeholder; real integration shown above -->
+  <script type="module">
+    console.log('Open the code blocks above for the real CDN usage.');
+  </script>
 </body>
 </html>

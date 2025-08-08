@@ -18,7 +18,7 @@ We take the security of the Chat Widget seriously. If you discover a security vu
 
 **Please do NOT report security vulnerabilities through public GitHub issues.**
 
-Instead, please report them via email to: **[mertegithub@gmail.com](mailto:mertegithub@gmail.com)**
+Report privately via GitHub Security Advisories or email: **[mertegithub@gmail.com](mailto:mertegithub@gmail.com)**
 
 Include the following information:
 
@@ -43,9 +43,9 @@ After you submit a vulnerability report, we will:
 
 ### Response Timeline
 
-- **Initial Response**: Within 48 hours
-- **Status Update**: Within 7 days with either a fix timeline or explanation of why the issue is not a security vulnerability
-- **Resolution**: We aim to patch critical vulnerabilities within 14 days
+- Initial response: within 48 hours
+- Status update: within 7 days with a fix timeline or explanation
+- Resolution goal: patch critical vulnerabilities within 14 days
 
 ## Security Best Practices
 

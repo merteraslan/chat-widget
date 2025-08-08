@@ -13,5 +13,5 @@
         "noUncheckedSideEffectImports": true,
         "types": ["node", "vite/client"]
     },
-    "include": ["vite.config.ts", "tsup.config.ts", "lib/**/*"]
+    "include": ["vite.config.ts", "lib/**/*"]
 }

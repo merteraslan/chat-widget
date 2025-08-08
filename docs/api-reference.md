@@ -353,34 +353,24 @@ The widget includes proper ARIA attributes:
 
 ## Browser Support
 
-- **Chrome**: 90+
-- **Firefox**: 88+
-- **Safari**: 14+
-- **Edge**: 90+
-
-### Mobile Support
-
-- **iOS Safari**: 14+
-- **Chrome Mobile**: 90+
-- **Samsung Internet**: 15+
+- Chrome: 105+
+- Firefox: 103+
+- Safari: 15.4+ (uses the :has() selector in CSS)
+- Edge: 105+
 
 ## Performance
 
-### Bundle Size
+### Bundle Size (from current build)
 
-- **ES Module**: ~45KB minified
-- **UMD**: ~48KB minified
-- **CSS**: ~8KB minified
-- **Total (gzipped)**: ~18KB
+- ES Module: ~21 KB (gzipped ~5.4 KB)
+- UMD: ~30 KB (gzipped ~8.1 KB)
+- CSS: ~16 KB (gzipped ~3.6 KB)
 
-### Runtime Performance
+### Runtime Notes
 
-- Lazy loading of interactive components
-- Efficient virtual scrolling for long conversations
-- Optimized re-renders with React.memo
-- Debounced input handling
-
-## TypeScript Definitions
+- Lightweight, minimal state
+- Smooth CSS transitions
+- Basic scroll-to-bottom handling
 
 Full TypeScript support with exported types:
 
@@ -390,8 +380,7 @@ import type {
   InteractiveContent,
   ArticleItem,
   FormField,
-  CardItem,
-  ResponseItem
+  CardItem
 } from '@merteraslan/chat-widget';
 ```
 
@@ -399,9 +388,8 @@ import type {
 
 ### Network Errors
 
-- Automatic retry for failed requests
+- One automatic retry for failed requests (transient errors)
 - User-friendly error messages
-- Fallback to offline mode
 
 ### Validation Errors
 

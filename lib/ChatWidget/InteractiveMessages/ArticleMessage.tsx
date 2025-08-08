@@ -1,11 +1,10 @@
-import React from "react";
 import type { InteractiveContent } from "./types";
 
 interface ArticleMessageProps {
     content: InteractiveContent;
 }
 
-export const ArticleMessage: React.FC<ArticleMessageProps> = ({ content }) => {
+export function ArticleMessage({ content }: ArticleMessageProps) {
     if (!content.content_attributes?.items) {
         return null;
     }
@@ -38,4 +37,4 @@ export const ArticleMessage: React.FC<ArticleMessageProps> = ({ content }) => {
             </div>
         </div>
     );
-}; 
+}

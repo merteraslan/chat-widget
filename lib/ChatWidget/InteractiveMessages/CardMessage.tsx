@@ -1,11 +1,10 @@
-import React from "react";
 import type { InteractiveContent } from "./types";
 
 interface CardMessageProps {
     content: InteractiveContent;
 }
 
-export const CardMessage: React.FC<CardMessageProps> = ({ content }) => {
+export function CardMessage({ content }: CardMessageProps) {
     const cardData = content.content_attributes?.cards;
 
     if (!cardData || !cardData.cards || cardData.cards.length === 0) {
@@ -67,4 +66,4 @@ export const CardMessage: React.FC<CardMessageProps> = ({ content }) => {
             </div>
         </div>
     );
-}; 
+}
