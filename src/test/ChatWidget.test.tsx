@@ -36,26 +36,26 @@ describe('ChatWidget', () => {
     const toggleButton = screen.getByRole('button', { name: /open chat/i });
     
     // Initially closed - check the widget class
-    const widget = document.querySelector('.mw-chat');
-    expect(widget).not.toHaveClass('mw-open');
+  const widget = document.querySelector('.cw-chat');
+  expect(widget).not.toHaveClass('cw-open');
     
     // Open chat
     await user.click(toggleButton);
     
     // Wait for interface to open
     await waitFor(() => {
-      expect(widget).toHaveClass('mw-open');
+  expect(widget).toHaveClass('cw-open');
       expect(screen.getByText(defaultProps.title)).toBeInTheDocument();
       expect(screen.getByText(defaultProps.initialMessage)).toBeInTheDocument();
     });
     
     // Close chat using close button (use class selector to be specific)
-    const closeButton = document.querySelector('.mw-close') as HTMLButtonElement;
+  const closeButton = document.querySelector('.cw-close') as HTMLButtonElement;
     await user.click(closeButton);
     
     // Should be closed again
     await waitFor(() => {
-      expect(widget).not.toHaveClass('mw-open');
+  expect(widget).not.toHaveClass('cw-open');
     });
   });
 
@@ -182,7 +182,7 @@ describe('ChatWidget', () => {
     
     // Check typing indicator appears (query by class since it doesn't have a test id)
     await waitFor(() => {
-      const typingIndicator = document.querySelector('.mw-typing');
+  const typingIndicator = document.querySelector('.cw-typing');
       expect(typingIndicator).toBeInTheDocument();
     });
     
@@ -191,7 +191,7 @@ describe('ChatWidget', () => {
       expect(screen.getByText('Delayed response')).toBeInTheDocument();
     }, { timeout: 2000 });
     
-    expect(document.querySelector('.mw-typing')).not.toBeInTheDocument();
+  expect(document.querySelector('.cw-typing')).not.toBeInTheDocument();
   });
 
   it('handles API errors gracefully', async () => {
@@ -298,8 +298,8 @@ describe('ChatWidget', () => {
     const customColor = '#ff0000';
     const { container } = render(<ChatWidget {...defaultProps} color={customColor} />);
     
-    const widget = container.querySelector('.mw-chat');
-    expect(widget).toHaveStyle(`--widget-primary-color: ${customColor}`);
+  const widget = container.querySelector('.cw-chat');
+  expect(widget).toHaveStyle(`--widget-primary-color: ${customColor}`);
   });
 
   it('handles interactive content responses', async () => {

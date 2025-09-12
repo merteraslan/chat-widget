@@ -658,46 +658,50 @@
                 const colorVars = this.generateColorVariations(color);
                 
                 // Check if widget already exists
-                const existingWidget = this.container.querySelector('.chat-widget');
-                
+                const existingWidget = this.container.querySelector('.cw-chat');
+
                 if (existingWidget) {
                     // Update existing widget state and styles
-                    existingWidget.setAttribute('data-open', this.isOpen);
+                    if (this.isOpen) {
+                        existingWidget.classList.add('cw-open');
+                    } else {
+                        existingWidget.classList.remove('cw-open');
+                    }
                     existingWidget.style.setProperty('--widget-primary-color', colorVars.primary);
                     existingWidget.style.setProperty('--widget-primary-hover', colorVars.primaryHover);
                     existingWidget.style.setProperty('--widget-primary-light', colorVars.primaryLight);
-                    
+
                     // Update only the messages content
                     this.updateMessages();
                 } else {
                     // Initial render - create the entire widget
                     this.container.innerHTML = `
-                        <div class="chat-widget" data-open="${this.isOpen}" style="
+                        <div class="cw-chat ${this.isOpen ? 'cw-open' : ''}" style="
                             --widget-primary-color: ${colorVars.primary};
                             --widget-primary-hover: ${colorVars.primaryHover};
                             --widget-primary-light: ${colorVars.primaryLight};
                         ">
-                            <button class="chat-toggle-button" onclick="chatWidget.toggle()">
+                            <button class="cw-toggle" onclick="chatWidget.toggle()">
                                 <svg class="chat-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"></path>
                                 </svg>
                             </button>
-                            <div class="chat-interface">
-                                <div class="chat-header">
-                                    <h3>${this.options.title}</h3>
-                                    <button class="close-button" onclick="chatWidget.close()">
+                            <div class="cw-window">
+                                <div class="cw-header">
+                                    <h3 class="cw-title">${this.options.title}</h3>
+                                    <button class="cw-close" onclick="chatWidget.close()">
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <line x1="18" y1="6" x2="6" y2="18"></line>
                                             <line x1="6" y1="6" x2="18" y2="18"></line>
                                         </svg>
                                     </button>
                                 </div>
-                                <div class="chat-messages" id="chat-messages">
+                                <div class="cw-messages" id="chat-messages">
                                     ${this.renderMessages()}
                                 </div>
-                                <div class="chat-input">
-                                    <input type="text" id="chat-input" placeholder="Type your message..." onkeydown="if(event.key==='Enter') chatWidget.sendMessage()">
-                                    <button onclick="chatWidget.sendMessage()">
+                                <div class="cw-inputbar">
+                                    <input type="text" id="chat-input" class="cw-input" placeholder="Type your message..." onkeydown="if(event.key==='Enter') chatWidget.sendMessage()">
+                                    <button class="cw-send" onclick="chatWidget.sendMessage()">
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <line x1="22" y1="2" x2="11" y2="13"></line>
                                             <polygon points="22,2 15,22 11,13 2,9 22,2"></polygon>
@@ -733,19 +737,19 @@
 
             renderMessages() {
                 if (this.messages.length === 0) {
-                    return `<div class="welcome-message"><p>${this.options.initialMessage}</p></div>`;
+                    return `<div class="cw-welcome"><p>${this.options.initialMessage}</p></div>`;
                 }
-                
+
                 return this.messages.map(msg => {
                     if (msg.interactive) {
                         return this.renderInteractiveMessage(msg);
                     }
                     const agentNamePrefix = !msg.isUser && this.options.agentName ? 
-                        `<span class="agent-name">${this.options.agentName}: </span>` : '';
+                        `<span class="cw-agent-name">${this.options.agentName}: </span>` : '';
                     return `
-                        <div class="message ${msg.isUser ? 'user-message' : 'ai-message'}">
-                            <div class="message-bubble">${agentNamePrefix}${msg.text}</div>
-                            <div class="message-time">${msg.timestamp}</div>
+                        <div class="cw-msg ${msg.isUser ? 'cw-user' : 'cw-assistant'}">
+                            <div class="cw-message-bubble">${agentNamePrefix}${msg.text}</div>
+                            <div class="cw-message-time">${msg.timestamp}</div>
                         </div>
                     `;
                 }).join('');
@@ -775,8 +779,8 @@
                     `).join('');
 
                     return `
-                        <div class="message ai-message">
-                            <div class="message-bubble">
+                        <div class="cw-msg cw-assistant">
+                            <div class="cw-message-bubble">
                                 <div class="interactive-articles">
                                     <div class="interactive-articles-header">
                                         <span class="interactive-articles-title">${content.content}</span>
@@ -786,7 +790,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="message-time">${msg.timestamp}</div>
+                            <div class="cw-message-time">${msg.timestamp}</div>
                         </div>
                     `;
                 }
@@ -800,13 +804,13 @@
                 }
                 
                 return `
-                    <div class="message ai-message">
-                        <div class="message-bubble">
+                    <div class="cw-msg cw-assistant">
+                        <div class="cw-message-bubble">
                             <div class="interactive-message-fallback">
                                 <p>Interactive content: ${content.content}</p>
                             </div>
                         </div>
-                        <div class="message-time">${msg.timestamp}</div>
+                        <div class="cw-message-time">${msg.timestamp}</div>
                     </div>
                 `;
             }
@@ -902,8 +906,8 @@
                 }).join('');
 
                 return `
-                    <div class="message ai-message">
-                        <div class="message-bubble">
+                    <div class="cw-msg cw-assistant">
+                        <div class="cw-message-bubble">
                             <div class="interactive-form">
                                 <div class="form-header">
                                     <h4 class="form-title">${form.title || content.content}</h4>
@@ -917,7 +921,7 @@
                                 </form>
                             </div>
                         </div>
-                        <div class="message-time">${timestamp}</div>
+                        <div class="cw-message-time">${timestamp}</div>
                     </div>
                 `;
             }
@@ -976,8 +980,8 @@
                 `).join('');
 
                 return `
-                    <div class="message ai-message">
-                        <div class="message-bubble">
+                    <div class="cw-msg cw-assistant">
+                        <div class="cw-message-bubble">
                             <div class="interactive-cards">
                                 <div class="interactive-cards-header">
                                     <span class="interactive-cards-title">${cards.title || content.content}</span>
@@ -988,7 +992,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="message-time">${timestamp}</div>
+                        <div class="cw-message-time">${timestamp}</div>
                     </div>
                 `;
             }
@@ -997,9 +1001,13 @@
                 this.isOpen = !this.isOpen;
                 
                 // Just update the state without full rebuild
-                const existingWidget = this.container.querySelector('.chat-widget');
+                const existingWidget = this.container.querySelector('.cw-chat');
                 if (existingWidget) {
-                    existingWidget.setAttribute('data-open', this.isOpen);
+                        if (this.isOpen) {
+                            existingWidget.classList.add('cw-open');
+                        } else {
+                            existingWidget.classList.remove('cw-open');
+                        }
                 } else {
                     this.render(); // Only full render if widget doesn't exist
                 }
@@ -1009,9 +1017,9 @@
                 this.isOpen = false;
                 
                 // Just update the state without full rebuild
-                const existingWidget = this.container.querySelector('.chat-widget');
+                const existingWidget = this.container.querySelector('.cw-chat');
                 if (existingWidget) {
-                    existingWidget.setAttribute('data-open', this.isOpen);
+                        existingWidget.classList.remove('cw-open');
                 } else {
                     this.render(); // Only full render if widget doesn't exist
                 }
@@ -1076,7 +1084,7 @@
                 `).join('');
 
                 return `
-                    <div class="canned-response-container">
+                    <div class="cw-canned-response-container">
                         <div class="interactive-canned-responses">
                             <div class="interactive-responses-header">
                                 <p class="interactive-responses-description">Choose an option below or type your own message:</p>

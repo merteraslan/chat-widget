@@ -196,13 +196,13 @@ export function ChatWidget({
   const widgetStyle = color ? ({ '--widget-primary-color': color } as CSSProperties) : {};
 
   return (
-    <div className={`mw-chat ${className} ${isOpen ? 'mw-open' : ''}`} style={widgetStyle}>
+    <div className={`cw-chat ${className} ${isOpen ? 'cw-open' : ''}`} style={widgetStyle}>
       {/* Toggle Button */}
       <button
         type="button"
-        className="mw-toggle"
+        className="cw-toggle"
         {...(isOpen ? { 'aria-expanded': 'true' } : { 'aria-expanded': 'false' })}
-        aria-controls="mw-window"
+        aria-controls="cw-window"
         onClick={toggle}
         aria-label={isOpen ? 'Close chat' : 'Open chat'}
       >
@@ -211,12 +211,12 @@ export function ChatWidget({
 
       {/* Window */}
       {isOpen && (
-        <div className="mw-window" id="mw-window" role="dialog" aria-label="Chat window">
-          <div className="mw-header">
-            <div className="mw-title">{title}</div>
+        <div className="cw-window" id="cw-window" role="dialog" aria-label="Chat window">
+          <div className="cw-header">
+            <div className="cw-title">{title}</div>
             <button
               type="button"
-              className="mw-close"
+              className="cw-close"
               onClick={(e) => {
                 e.stopPropagation();
                 setOpen(false);
@@ -227,9 +227,9 @@ export function ChatWidget({
             </button>
           </div>
 
-          <div className="mw-messages" aria-live="polite">
+          <div className="cw-messages" aria-live="polite">
             {messages.length === 0 ? (
-              <div className="mw-welcome">
+              <div className="cw-welcome">
                 <p>{initialMessage}</p>
               </div>
             ) : (
@@ -241,28 +241,28 @@ export function ChatWidget({
                     message.interactive?.content_type === 'quick_reply'
                   ) {
                     return (
-                      <div key={message.id} className="mw-canned-response-container">
+                      <div key={message.id} className="cw-canned-response-container">
                         <InteractiveMessage content={message.interactive} />
                       </div>
                     );
                   }
 
                   // Standard message rendering
-                  return (
-                    <div key={message.id} className={`mw-msg mw-${message.role}`}>
-                      <div className="mw-message-bubble">
+                    return (
+                      <div key={message.id} className={`cw-msg cw-${message.role}`}>
+                        <div className="cw-message-bubble">
                         {message.interactive ? (
                           <InteractiveMessage content={message.interactive} />
                         ) : (
                           <>
                             {message.role === 'assistant' && agentName && (
-                              <span className="mw-agent-name">{agentName}: </span>
+                              <span className="cw-agent-name">{agentName}: </span>
                             )}
                             {message.text}
                           </>
                         )}
                       </div>
-                      <div className="mw-message-time">
+                      <div className="cw-message-time">
                         {new Intl.DateTimeFormat('en-GB', {
                           hour: '2-digit',
                           minute: '2-digit',
@@ -272,10 +272,10 @@ export function ChatWidget({
                   );
                 })}
                 {sending && (
-                  <div className="mw-msg mw-assistant mw-typing">
-                    <span className="mw-dot" />
-                    <span className="mw-dot" />
-                    <span className="mw-dot" />
+                  <div className="cw-msg cw-assistant cw-typing">
+                    <span className="cw-dot" />
+                    <span className="cw-dot" />
+                    <span className="cw-dot" />
                   </div>
                 )}
                 <div ref={bottomRef} />
@@ -284,7 +284,7 @@ export function ChatWidget({
           </div>
 
           <form
-            className="mw-inputbar"
+            className="cw-inputbar"
             onSubmit={(e) => {
               e.preventDefault();
               void sendMessage();
@@ -292,7 +292,7 @@ export function ChatWidget({
           >
             <input
               type="text"
-              className="mw-input"
+              className="cw-input"
               placeholder={placeholder}
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -300,7 +300,7 @@ export function ChatWidget({
             />
             <button
               type="submit"
-              className="mw-send"
+              className="cw-send"
               onClick={onSendClick}
               disabled={sending || !input.trim()}
               aria-label="Send message"
