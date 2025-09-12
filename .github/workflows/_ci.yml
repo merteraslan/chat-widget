@@ -76,7 +76,7 @@ jobs:
       cache-hit: ${{ steps.cache-deps.outputs.cache-hit }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -87,7 +87,7 @@ jobs:
           version: latest
 
       - name: Setup Node.js (npm/yarn)
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         if: inputs.package-manager != 'pnpm'
         with:
           node-version: '20.x'
@@ -95,7 +95,7 @@ jobs:
           cache-dependency-path: ${{ inputs.cache-dependency-path }}
 
       - name: Setup Node.js (pnpm)
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         if: inputs.package-manager == 'pnpm'
         with:
           node-version: '20.x'
@@ -141,7 +141,7 @@ jobs:
     
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -150,7 +150,7 @@ jobs:
           version: latest
 
       - name: Setup Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: ${{ matrix.node-version }}
           cache: ${{ inputs.package-manager }}
@@ -233,7 +233,7 @@ jobs:
     
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -242,7 +242,7 @@ jobs:
           version: latest
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '20.x'
           cache: ${{ inputs.package-manager }}
@@ -283,7 +283,7 @@ jobs:
     
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -292,7 +292,7 @@ jobs:
           version: latest
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '20.x'
           cache: ${{ inputs.package-manager }}
@@ -346,7 +346,7 @@ jobs:
     
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         
       - name: Dependency Review
         uses: actions/dependency-review-action@v4
@@ -365,7 +365,7 @@ jobs:
       
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
@@ -379,7 +379,7 @@ jobs:
           version: latest
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '20.x'
           cache: ${{ inputs.package-manager }}
