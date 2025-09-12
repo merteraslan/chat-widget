@@ -10,8 +10,9 @@ updates:
     open-pull-requests-limit: 10
     reviewers:
       - "merteraslan"
+      - "copilot-swe-agent"
     assignees:
-      - "merteraslan"
+      - "copilot-swe-agent"
     commit-message:
       prefix: "⬆️"
       include: "scope"
@@ -29,8 +30,10 @@ updates:
     open-pull-requests-limit: 5
     reviewers:
       - "merteraslan"
+      - "copilot-swe-agent"
     assignees:
       - "merteraslan"
+      - "copilot-swe-agent"
     commit-message:
       prefix: "⬆️"
       include: "scope"
