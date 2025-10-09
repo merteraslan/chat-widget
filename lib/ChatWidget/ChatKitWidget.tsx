@@ -22,7 +22,40 @@ declare global {
 const scriptPromises = new Map<string, Promise<void>>();
 
 function isDestroyable(result: unknown): result is { destroy?: () => void } {
-  return typeof result === 'object' && result !== null && typeof (result as { destroy?: unknown }).destroy === 'function';
+  return (
+    typeof result === 'object' &&
+    result !== null &&
+    'destroy' in result &&
+    typeof (result as { destroy?: unknown }).destroy === 'function'
+  );
+}
+
+function shallowEqualRecords(
+  a: Record<string, unknown>,
+  b: Record<string, unknown>
+): boolean {
+  if (a === b) {
+    return true;
+  }
+
+  const aKeys = Object.keys(a);
+  const bKeys = Object.keys(b);
+
+  if (aKeys.length !== bKeys.length) {
+    return false;
+  }
+
+  for (const key of aKeys) {
+    if (!Object.prototype.hasOwnProperty.call(b, key)) {
+      return false;
+    }
+
+    if (!Object.is(a[key], b[key])) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 function loadScript(src: string) {
@@ -39,7 +72,19 @@ function loadScript(src: string) {
 
     const existing = document.querySelector(`script[src="${src}"]`) as HTMLScriptElement | null;
 
-    const script = existing ?? document.createElement('script');
+    if (existing?.dataset.chatWidgetLoaded === 'true') {
+      resolve();
+      return;
+    }
+
+    if (existing && existing.dataset.chatWidgetLoaded !== 'true') {
+      existing.remove();
+    }
+
+    const script = document.createElement('script');
+    script.src = src;
+    script.async = true;
+    script.crossOrigin = 'anonymous';
 
     const cleanup = () => {
       script.removeEventListener('load', handleLoad);
@@ -54,21 +99,14 @@ function loadScript(src: string) {
 
     const handleError = () => {
       cleanup();
+      script.remove();
       reject(new Error(`Failed to load ChatKit script from ${src}`));
     };
 
     script.addEventListener('load', handleLoad);
     script.addEventListener('error', handleError);
 
-    if (!existing) {
-      script.src = src;
-      script.async = true;
-      script.crossOrigin = 'anonymous';
-      document.head.append(script);
-    } else if (existing.dataset.chatWidgetLoaded === 'true') {
-      cleanup();
-      resolve();
-    }
+    document.head.append(script);
   });
 
   promise.catch(() => {
@@ -166,6 +204,13 @@ export function ChatKitWidget({
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [errorDetail, setErrorDetail] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [stableOptions, setStableOptions] = useState<Record<string, unknown>>(options);
+
+  useEffect(() => {
+    setStableOptions((current) =>
+      shallowEqualRecords(current, options) ? current : options
+    );
+  }, [options]);
 
   useEffect(() => {
     let cancelled = false;
@@ -190,7 +235,7 @@ export function ChatKitWidget({
           throw new Error('ChatKit container element is unavailable.');
         }
 
-        const result = await method({ ...options, element: containerRef.current });
+        const result = await method({ ...stableOptions, element: containerRef.current });
         const destroy = isDestroyable(result) ? result.destroy?.bind(result) : undefined;
 
         if (cancelled) {
@@ -218,7 +263,7 @@ export function ChatKitWidget({
         cleanup();
       }
     };
-  }, [options, renderMethod, resolver, scriptUrl, onReady, onError]);
+  }, [stableOptions, renderMethod, resolver, scriptUrl, onReady, onError]);
 
   const wrapperClassName = ['cw-chatkit', 'cw-chatkit-host', containerClassName].filter(Boolean).join(' ');
 
