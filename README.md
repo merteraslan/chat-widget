@@ -39,6 +39,7 @@ Your server responds with either plain text wrapped in an `output` field, or str
 | `sessionId` | `string` | ❌ | Unique identifier forwarded to your backend for conversation tracking. |
 | `initialMessage` | `string` | ❌ | Opening message from the bot when chat first appears. Default: `"Hi there! What can I do for you?"`. |
 | `className` | `string` | ❌ | Custom CSS class applied to the root widget element. |
+| `chatKit` | `ChatKitWidgetConfig` | ❌ | Replace the built-in thread UI with an OpenAI ChatKit widget. Provide the same options you would pass to `ChatKit.mount` (or `render`) plus optional script, labels, and callbacks. |
 
 ## Quick Start
 
@@ -179,6 +180,34 @@ Beyond basic text exchanges, the widget renders rich interactive elements that e
   }
 }
 ```
+
+## Embedding OpenAI ChatKit widgets
+
+Prefer to use [OpenAI ChatKit widgets](https://platform.openai.com/docs/guides/chatkit-widgets) instead of the bundled chat UI? Pass a `chatKit` configuration object. The widget hides the built-in composer and mounts ChatKit in-place:
+
+```tsx
+import { ChatWidget } from '@merteraslan/chat-widget';
+
+const chatKitConfig = {
+  options: {
+    publishableKey: 'pk-live-123',
+    assistantId: 'asst_abc123',
+    threadId: 'thread_existing',
+    variant: 'overlay',
+  },
+  loadingLabel: 'Connecting you with our assistant…',
+  errorLabel: 'Chat is temporarily unavailable. Please refresh later.',
+  // Override the CDN URL or hydrate an already-bundled ChatKit instance if needed.
+  // scriptUrl: 'https://cdn.openai.com/chatkit/widget.js',
+  // resolver: () => window.ChatKit,
+};
+
+export function Support() {
+  return <ChatWidget webhookUrl="/api/echo" chatKit={chatKitConfig} />;
+}
+```
+
+By default the component loads `https://cdn.openai.com/chatkit/widget.js` the first time the chat window opens. If you self-host ChatKit or bundle `@openai/chatkit` yourself, provide a `resolver` function that returns the module and skip the CDN altogether. The `onReady` and `onError` callbacks let you hook into ChatKit lifecycle events.
 
 ## Styling
 

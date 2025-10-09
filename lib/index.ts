@@ -3,6 +3,7 @@ export type {
     ChatWidgetProps,
     ChatMessage
 } from "./ChatWidget/ChatWidget";
+export type { ChatKitWidgetConfig } from "./ChatWidget/ChatKitWidget";
 export type {
     InteractiveContent,
     ArticleItem,

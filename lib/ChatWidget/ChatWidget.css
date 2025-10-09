@@ -140,6 +140,52 @@
     opacity: 0;
 }
 
+.cw-chatkit-host {
+    padding: 0;
+    background: transparent;
+    overflow: hidden;
+}
+
+.cw-chatkit {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 0;
+}
+
+.cw-chatkit[data-status='loading'] .cw-chatkit-frame {
+    visibility: hidden;
+}
+
+.cw-chatkit-frame {
+    flex: 1;
+    min-height: 0;
+}
+
+.cw-chatkit-loading,
+.cw-chatkit-error {
+    font-size: 14px;
+    line-height: 1.45;
+    padding: 16px;
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+.cw-chatkit-error {
+    color: #b42318;
+    background: #fdecea;
+    box-shadow: none;
+}
+
+.cw-chatkit-error-detail {
+    margin-top: 6px;
+    font-size: 12px;
+    opacity: 0.8;
+    word-break: break-word;
+}
+
 .cw-welcome {
     text-align: center;
     color: #666;
