@@ -196,7 +196,7 @@ describe('ChatWidget', () => {
 
   it('handles API errors gracefully', async () => {
     const user = userEvent.setup();
-    
+
     mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
     render(<ChatWidget {...defaultProps} />);
@@ -210,6 +210,49 @@ describe('ChatWidget', () => {
     await waitFor(() => {
       expect(screen.getByText('Sorry, something went wrong.')).toBeInTheDocument();
     });
+  });
+
+  it('can mount an OpenAI ChatKit widget when configured', async () => {
+    const user = userEvent.setup();
+    const destroy = vi.fn();
+    const mount = vi.fn().mockResolvedValue({ destroy });
+
+    (window as unknown as { ChatKit?: unknown }).ChatKit = { mount };
+
+    render(
+      <ChatWidget
+        {...defaultProps}
+        chatKit={{
+          options: {
+            publishableKey: 'pk-test',
+            assistantId: 'asst_123',
+          },
+          loadingLabel: 'Connecting to assistant…',
+        }}
+      />
+    );
+
+    const toggleButton = screen.getByRole('button', { name: /open chat/i });
+    await user.click(toggleButton);
+
+    await waitFor(() => {
+      expect(mount).toHaveBeenCalledTimes(1);
+    });
+
+    const mountArgs = mount.mock.calls[0][0] as Record<string, unknown>;
+    expect(mountArgs.publishableKey).toBe('pk-test');
+    expect(mountArgs.assistantId).toBe('asst_123');
+    expect(mountArgs.element).toBeInstanceOf(HTMLElement);
+
+    await waitFor(() => {
+      const container = document.querySelector('.cw-chatkit');
+      expect(container).toHaveAttribute('data-status', 'ready');
+    });
+
+    expect(screen.queryByPlaceholderText('Type a message…')).not.toBeInTheDocument();
+    expect(mockFetch).not.toHaveBeenCalled();
+
+    delete (window as unknown as { ChatKit?: unknown }).ChatKit;
   });
 
   it('uses custom sessionId when provided', async () => {

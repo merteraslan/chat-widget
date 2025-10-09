@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState, type CSSProperties } from 're
 import './ChatWidget.css';
 import { InteractiveMessage } from './InteractiveMessages';
 import type { InteractiveContent } from './InteractiveMessages';
+import { ChatKitWidget, type ChatKitWidgetConfig } from './ChatKitWidget';
 
 export interface ChatMessage {
   id: string;
@@ -39,6 +40,7 @@ export interface ChatWidgetProps {
   className?: string;
   color?: string;
   agentName?: string;
+  chatKit?: ChatKitWidgetConfig;
 }
 
 /**
@@ -55,12 +57,14 @@ export function ChatWidget({
   className = '',
   color,
   agentName,
+  chatKit,
 }: ChatWidgetProps) {
   const [isOpen, setOpen] = useState(openByDefault);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const chatKitEnabled = Boolean(chatKit);
 
   useEffect(() => {
     if (isOpen && bottomRef.current) {
@@ -140,6 +144,10 @@ export function ChatWidget({
   );
 
   useEffect(() => {
+    if (chatKitEnabled) {
+      return;
+    }
+
     const handleCannedResponse = (event: CustomEvent<CannedResponseEventDetail>) => {
       const { text, value } = event.detail;
 
@@ -161,11 +169,13 @@ export function ChatWidget({
     return () => {
       document.removeEventListener('cannedResponseSelected', handleCannedResponse as EventListener);
     };
-  }, [sendMessageWithText]);
+  }, [chatKitEnabled, sendMessageWithText]);
 
   const toggle = () => setOpen((o) => !o);
 
   const sendMessage = async () => {
+    if (chatKitEnabled) return;
+
     const text = input.trim();
     if (!text || sending) return;
 
@@ -183,6 +193,7 @@ export function ChatWidget({
   };
 
   const onKeyDown = (e: React.KeyboardEvent) => {
+    if (chatKitEnabled) return;
     if (e.key === 'Enter') {
       e.preventDefault();
       void sendMessage();
@@ -190,6 +201,7 @@ export function ChatWidget({
   };
 
   const onSendClick = () => {
+    if (chatKitEnabled) return;
     void sendMessage();
   };
 
@@ -228,7 +240,9 @@ export function ChatWidget({
           </div>
 
           <div className="cw-messages" aria-live="polite">
-            {messages.length === 0 ? (
+            {chatKit ? (
+              <ChatKitWidget {...chatKit} />
+            ) : messages.length === 0 ? (
               <div className="cw-welcome">
                 <p>{initialMessage}</p>
               </div>
@@ -248,9 +262,9 @@ export function ChatWidget({
                   }
 
                   // Standard message rendering
-                    return (
-                      <div key={message.id} className={`cw-msg cw-${message.role}`}>
-                        <div className="cw-message-bubble">
+                  return (
+                    <div key={message.id} className={`cw-msg cw-${message.role}`}>
+                      <div className="cw-message-bubble">
                         {message.interactive ? (
                           <InteractiveMessage content={message.interactive} />
                         ) : (
@@ -283,31 +297,33 @@ export function ChatWidget({
             )}
           </div>
 
-          <form
-            className="cw-inputbar"
-            onSubmit={(e) => {
-              e.preventDefault();
-              void sendMessage();
-            }}
-          >
-            <input
-              type="text"
-              className="cw-input"
-              placeholder={placeholder}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={onKeyDown}
-            />
-            <button
-              type="submit"
-              className="cw-send"
-              onClick={onSendClick}
-              disabled={sending || !input.trim()}
-              aria-label="Send message"
+          {!chatKitEnabled && (
+            <form
+              className="cw-inputbar"
+              onSubmit={(e) => {
+                e.preventDefault();
+                void sendMessage();
+              }}
             >
-              Send
-            </button>
-          </form>
+              <input
+                type="text"
+                className="cw-input"
+                placeholder={placeholder}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={onKeyDown}
+              />
+              <button
+                type="submit"
+                className="cw-send"
+                onClick={onSendClick}
+                disabled={sending || !input.trim()}
+                aria-label="Send message"
+              >
+                Send
+              </button>
+            </form>
+          )}
         </div>
       )}
     </div>
