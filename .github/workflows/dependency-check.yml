@@ -69,7 +69,7 @@ jobs:
           echo "\`\`\`" >> dependency-report.md
           
       - name: Upload dependency report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: dependency-report-${{ github.run_id }}
           path: dependency-report.md
